@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://dawdf5bq8f78s"]
+
+[ext_resource type="Script" path="res://UI/score.gd" id="1_r0kd6"]
+[ext_resource type="AudioStream" uid="uid://c76vpiiqctsjp" path="res://UI/score.ogg" id="2_djqhj"]
+
+[node name="score" type="Label" groups=["score"]]
+top_level = true
+offset_right = 186.0
+offset_bottom = 26.0
+text = "Chamallow : 0"
+script = ExtResource("1_r0kd6")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.1
+autostart = true
+
+[node name="sound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_djqhj")
+volume_db = -10.0
+
+[connection signal="timeout" from="Timer" to="." method="update_score"]
