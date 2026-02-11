@@ -3,7 +3,7 @@ global.gd | 379f7f6
 maps/map.gd | 91252d9
 maps/parallax_bg.gd | 47bab79
 objects/player/player.gd | f78f55a
-objects/player/player.tscn | a8cb0bf
+objects/player/player.tscn | e450883
 objects/player_fly_tux/player.gd | 121eb79
 objects/player_fly_tux/player.tscn | 1c723ee
 objects/popup/event_popup.gd | c248b84

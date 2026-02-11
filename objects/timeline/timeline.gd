@@ -1,228 +1,231 @@
 extends Node2D
-## Génère et fait défiler la timeline à partir des données JSON.
-## La timeline est une barre horizontale en bas de l'écran avec des panneaux
-## (comme des panneaux de signalisation) qui dépassent, montrant les dates.
-## Entre deux panneaux, le texte de l'événement associé au panneau de gauche.
 
-@export_group("Apparence")
-@export var bar_height := 6.0                  ## Épaisseur de la barre
-@export var bar_color := Color(1, 1, 1, 0.7)  ## Couleur de la barre
-@export var bar_y := 570.0                     ## Position Y de la barre
-@export var sign_post_height := 55.0           ## Hauteur du poteau du panneau
-@export var sign_panel_color := Color(0.2, 0.15, 0.35, 0.9)
-@export var sign_text_color := Color.WHITE
-@export var event_text_color := Color(0.9, 0.9, 0.85, 0.8)
+signal event_zone_entered(event_index: int)
 
-@export_group("Espacement")
-@export var sign_spacing := 500.0              ## Distance entre deux panneaux
-@export var start_offset := 600.0              ## Décalage initial (les panneaux arrivent par la droite)
+@export var scroll_speed: float = 80.0
+@export var marker_spacing: float = 700.0
+@export var timeline_y: float = 570.0         # bien plus bas sur l'écran
+@export var bar_height: float = 60.0          # barres bien visibles
+@export var sign_width: float = 120.0
+@export var sign_height: float = 36.0
+@export var post_height: float = 40.0
 
-# --- Signaux ---
-signal event_zone_entered(event_index: int)    ## Le joueur est au-dessus d'une zone
+var _scrolling := true
+var _markers: Array[Node2D] = []
+var _active_event_index: int = -1
 
-# --- Données internes ---
-var events: Array[Dictionary] = []
-var sign_nodes: Array[Node2D] = []
-var is_scrolling := true
-var _active_event_index := -1
-
-@onready var display_size := get_viewport().get_visible_rect().size
+# Couleurs
+var _sign_bg := Color(0.15, 0.22, 0.35, 0.92)
+var _sign_border := Color(0.85, 0.85, 0.85, 0.8)
+var _bar_colors: Array[Color] = [
+	Color(0.25, 0.45, 0.65, 0.7),
+	Color(0.35, 0.30, 0.60, 0.7),
+	Color(0.20, 0.50, 0.45, 0.7),
+	Color(0.50, 0.35, 0.55, 0.7),
+	Color(0.30, 0.55, 0.40, 0.7),
+	Color(0.45, 0.40, 0.30, 0.7),
+	Color(0.35, 0.50, 0.60, 0.7),
+]
+var _bar_active_color := Color(0.5, 0.75, 1.0, 0.8)
+var _bar_seen_color := Color(0.45, 0.65, 0.4, 0.65)
+var _post_color := Color(0.7, 0.7, 0.7, 0.5)
+var _title_color := Color(1, 1, 1, 0.85)
 
 
 func _ready() -> void:
-	events = Global.timeline_events
-	_build_timeline()
+	Global.scroll_speed = scroll_speed
+	_build_markers()
 
 
 func _process(delta: float) -> void:
-	if not is_scrolling or Global.is_paused:
+	if not _scrolling or Global.is_paused:
 		return
 
-	var speed := Global.scroll_speed * delta
+	var speed := scroll_speed * Global.time_scale * delta
+	for marker in _markers:
+		marker.position.x -= speed
 
-	for sign_node in sign_nodes:
-		sign_node.position.x -= speed
-
-	_update_active_zone()
-
-
-# === CONSTRUCTION DE LA TIMELINE ===
-
-func _build_timeline() -> void:
-	if events.is_empty():
-		push_warning("[Timeline] Aucun événement à afficher.")
-		return
-
-	for i in events.size():
-		var sign_node := _create_sign(events[i], i)
-		sign_node.position.x = start_offset + (i * sign_spacing)
-		sign_node.position.y = bar_y
-		add_child(sign_node)
-		sign_nodes.append(sign_node)
-
-	# Panneau de fin
-	var end_sign := _create_end_sign()
-	end_sign.position.x = start_offset + (events.size() * sign_spacing)
-	end_sign.position.y = bar_y
-	add_child(end_sign)
-	sign_nodes.append(end_sign)
+	_check_active_zone()
 
 
-func _create_sign(event: Dictionary, index: int) -> Node2D:
-	var root := Node2D.new()
-	root.name = "Sign_%d" % index
-	root.set_meta("event_index", index)
+# ══════════════════════════════════════════════════════════════
+#  CONSTRUCTION VISUELLE
+# ══════════════════════════════════════════════════════════════
 
-	# --- Segment de barre horizontal ---
-	var bar_segment := ColorRect.new()
-	bar_segment.size = Vector2(sign_spacing, bar_height)
-	bar_segment.position = Vector2(0, -bar_height / 2.0)
-	bar_segment.color = bar_color
-	root.add_child(bar_segment)
+func _build_markers() -> void:
+	var events: Array = Global.timeline_events
 
-	# --- Poteau vertical ---
-	var post := Line2D.new()
-	post.add_point(Vector2(0, 0))
-	post.add_point(Vector2(0, -sign_post_height))
-	post.width = 3.0
-	post.default_color = Color.WHITE
-	root.add_child(post)
+	for i in range(events.size()):
+		var ev: Dictionary = events[i]
+		var marker := Node2D.new()
+		marker.position = Vector2(400 + i * marker_spacing, 0)
+		add_child(marker)
+		_markers.append(marker)
 
-	# --- Panneau (fond) ---
-	var panel_bg := ColorRect.new()
-	var panel_width := 100.0
-	var panel_h := 28.0
-	panel_bg.size = Vector2(panel_width, panel_h)
-	panel_bg.position = Vector2(-panel_width / 2.0, -sign_post_height - panel_h)
-	panel_bg.color = sign_panel_color
-	root.add_child(panel_bg)
+		# ── Barre de timeline (pleine largeur, pas d'espace) ──
+		_add_timeline_bar(marker, i)
 
-	# --- Bordure du panneau ---
-	var border := ReferenceRect.new()
-	border.size = panel_bg.size
-	border.position = panel_bg.position
-	border.border_color = Color.WHITE
-	border.border_width = 2.0
-	border.editor_only = false
-	root.add_child(border)
+		# ── Panneau gauche (date début) ──
+		var date_start: String = ev.get("date", "")
+		_add_sign_post(marker, 0.0, date_start, true)
 
-	# --- Date sur le panneau ---
-	var date_label := Label.new()
-	date_label.text = event.get("date", "???")
-	date_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	date_label.size = Vector2(panel_width - 8, panel_h)
-	date_label.position = Vector2(-panel_width / 2.0 + 4, -sign_post_height - panel_h + 2)
-	date_label.add_theme_font_size_override("font_size", 13)
-	date_label.add_theme_color_override("font_color", sign_text_color)
-	date_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	root.add_child(date_label)
+		# ── Panneau droit (date fin / début suivant) ──
+		var date_end: String = ""
+		if i + 1 < events.size():
+			date_end = events[i + 1].get("date", "")
+		else:
+			date_end = ev.get("date_end", "Aujourd'hui")
+		_add_sign_post(marker, marker_spacing, date_end, false)
 
-	# --- Texte de l'événement sur la barre ---
-	var title_label := Label.new()
-	title_label.text = event.get("title", "")
-	title_label.position = Vector2(15, -30)
-	title_label.add_theme_font_size_override("font_size", 14)
-	title_label.add_theme_color_override("font_color", event_text_color)
-	title_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-	title_label.size = Vector2(sign_spacing - 40, 25)
-	root.add_child(title_label)
-
-	# --- Zone de détection (Area2D pour savoir quel événement est actif) ---
-	var area := Area2D.new()
-	area.name = "TriggerZone"
-	area.collision_layer = 2
-	area.collision_mask = 1
-	area.set_meta("event_index", index)
-
-	var collision := CollisionShape2D.new()
-	var shape := RectangleShape2D.new()
-	shape.size = Vector2(sign_spacing * 0.9, 150.0)
-	collision.shape = shape
-	collision.position = Vector2(sign_spacing * 0.45, -75.0)
-	area.add_child(collision)
-
-	area.body_entered.connect(_on_trigger_zone_body_entered.bind(index))
-	root.add_child(area)
-
-	return root
+		# ── Titre centré ──
+		_add_title(marker, ev.get("title", ""), i)
 
 
-func _create_end_sign() -> Node2D:
-	var root := Node2D.new()
-	root.name = "Sign_End"
+## Barre pleine entre les deux panneaux — AUCUN espace
+func _add_timeline_bar(parent: Node2D, index: int) -> void:
+	var bar := ColorRect.new()
+	# La barre commence à x=0 et va jusqu'à marker_spacing (collée au suivant)
+	bar.position = Vector2(0, timeline_y - bar_height)
+	bar.size = Vector2(marker_spacing, bar_height)
+	bar.color = _bar_colors[index % _bar_colors.size()]
+	bar.name = "Bar"
+	parent.add_child(bar)
 
-	# Poteau
-	var post := Line2D.new()
-	post.add_point(Vector2(0, 0))
-	post.add_point(Vector2(0, -sign_post_height))
-	post.width = 3.0
-	post.default_color = Color.GOLD
-	root.add_child(post)
-
-	# Panneau cœur
-	var panel_bg := ColorRect.new()
-	var pw := 50.0
-	var ph := 28.0
-	panel_bg.size = Vector2(pw, ph)
-	panel_bg.position = Vector2(-pw / 2.0, -sign_post_height - ph)
-	panel_bg.color = Color(0.7, 0.1, 0.2, 0.9)
-	root.add_child(panel_bg)
-
-	var heart_label := Label.new()
-	heart_label.text = "♥"
-	heart_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	heart_label.size = Vector2(pw, ph)
-	heart_label.position = panel_bg.position
-	heart_label.add_theme_font_size_override("font_size", 18)
-	heart_label.add_theme_color_override("font_color", Color.WHITE)
-	heart_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	root.add_child(heart_label)
-
-	return root
+	# Ligne de séparation fine à gauche
+	var sep := ColorRect.new()
+	sep.size = Vector2(2, bar_height)
+	sep.position = Vector2(0, timeline_y - bar_height)
+	sep.color = Color(1, 1, 1, 0.25)
+	parent.add_child(sep)
 
 
-# === DÉTECTION DE ZONE ACTIVE ===
+## Panneau de signalisation avec poteau
+func _add_sign_post(parent: Node2D, x_pos: float, date_text: String, is_left: bool) -> void:
+	var sign_x := x_pos - sign_width * 0.5
+	var sign_bottom := timeline_y - bar_height
 
-func _update_active_zone() -> void:
-	# Le joueur est à une position X fixe, on cherche quel panneau est sous lui
-	if not Global.player:
-		return
+	# ── Poteau ──
+	var post := ColorRect.new()
+	post.size = Vector2(3, post_height)
+	post.position = Vector2(x_pos - 1.5, sign_bottom - post_height)
+	post.color = _post_color
+	parent.add_child(post)
 
-	var player_x := Global.player.global_position.x
+	# ── Fond du panneau ──
+	var panel_y := sign_bottom - post_height - sign_height - 2
+	var bg := ColorRect.new()
+	bg.size = Vector2(sign_width, sign_height)
+	bg.position = Vector2(sign_x, panel_y)
+	bg.color = _sign_bg
+	parent.add_child(bg)
 
-	for i in sign_nodes.size() - 1:  # -1 pour exclure le panneau de fin
-		var sign_x := sign_nodes[i].global_position.x
-		var next_x := sign_x + sign_spacing
+	# ── Bordures ──
+	var bw := 2.0
+	for edge in [
+		[Vector2(sign_x, panel_y), Vector2(sign_width, bw)],                          # haut
+		[Vector2(sign_x, panel_y + sign_height - bw), Vector2(sign_width, bw)],       # bas
+		[Vector2(sign_x, panel_y), Vector2(bw, sign_height)],                          # gauche
+		[Vector2(sign_x + sign_width - bw, panel_y), Vector2(bw, sign_height)],       # droite
+	]:
+		var r := ColorRect.new()
+		r.position = edge[0]
+		r.size = edge[1]
+		r.color = _sign_border
+		parent.add_child(r)
 
-		if player_x >= sign_x and player_x < next_x:
-			if _active_event_index != i:
-				_active_event_index = i
-				event_zone_entered.emit(i)
-			return
+	# ── Texte date ──
+	var lbl := Label.new()
+	if is_left:
+		lbl.text = "▸ " + date_text
+	else:
+		lbl.text = date_text + " ◂"
+	lbl.position = Vector2(sign_x + 6, panel_y + 2)
+	lbl.size = Vector2(sign_width - 12, sign_height - 4)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl.add_theme_font_size_override("font_size", 12)
+	lbl.add_theme_color_override("font_color", Color.WHITE)
+	lbl.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+	lbl.add_theme_constant_override("shadow_outline_size", 2)
+	parent.add_child(lbl)
 
-	_active_event_index = -1
+
+## Titre centré dans la barre
+func _add_title(parent: Node2D, title_text: String, _index: int) -> void:
+	var lbl := Label.new()
+	lbl.text = title_text
+	lbl.name = "Title"
+
+	# Centré dans la barre
+	var label_w := marker_spacing * 0.7
+	lbl.position = Vector2(
+		marker_spacing * 0.5 - label_w * 0.5,
+		timeline_y - bar_height * 0.5 - 12
+	)
+	lbl.size = Vector2(label_w, 24)
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl.add_theme_font_size_override("font_size", 16)
+	lbl.add_theme_color_override("font_color", _title_color)
+	lbl.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.7))
+	lbl.add_theme_constant_override("shadow_outline_size", 3)
+	parent.add_child(lbl)
 
 
-func _on_trigger_zone_body_entered(body: Node2D, event_index: int) -> void:
-	if body.is_in_group("players"):
-		_active_event_index = event_index
+# ══════════════════════════════════════════════════════════════
+#  LOGIQUE
+# ══════════════════════════════════════════════════════════════
+
+func _check_active_zone() -> void:
+	var player_x: float = 300.0
+	if Global.player:
+		player_x = Global.player.position.x
+
+	var closest_idx := -1
+	var closest_dist := 9999.0
+
+	for i in range(_markers.size()):
+		var left_x: float = _markers[i].position.x
+		var right_x: float = left_x + marker_spacing
+
+		if player_x >= left_x and player_x <= right_x:
+			var dist := absf(left_x + marker_spacing * 0.5 - player_x)
+			if dist < closest_dist:
+				closest_dist = dist
+				closest_idx = i
+
+	if closest_idx != _active_event_index and closest_idx >= 0:
+		_active_event_index = closest_idx
+		event_zone_entered.emit(_active_event_index)
+		_highlight_active_bar()
 
 
-# === API ===
+func _highlight_active_bar() -> void:
+	for i in range(_markers.size()):
+		var bar: ColorRect = _markers[i].get_node_or_null("Bar")
+		if not bar:
+			continue
+		if i == _active_event_index:
+			bar.color = _bar_active_color
+		elif Global.is_event_seen(i):
+			bar.color = _bar_seen_color
+		else:
+			bar.color = _bar_colors[i % _bar_colors.size()]
+
+
+func get_active_event() -> Dictionary:
+	if _active_event_index < 0 or _active_event_index >= Global.timeline_events.size():
+		return {}
+	return Global.timeline_events[_active_event_index]
+
 
 func get_active_event_index() -> int:
 	return _active_event_index
 
 
-func get_active_event() -> Dictionary:
-	if _active_event_index >= 0 and _active_event_index < events.size():
-		return events[_active_event_index]
-	return {}
-
-
 func pause() -> void:
-	is_scrolling = false
+	_scrolling = false
 
 
 func resume() -> void:
-	is_scrolling = true
+	_scrolling = true
