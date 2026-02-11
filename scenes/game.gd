@@ -71,7 +71,7 @@ func _on_player_dive_landed() -> void:
 		return
 
 	# Marque comme vu
-	var idx := timeline.get_active_event_index()
+	var idx: int = timeline.get_active_event_index()
 	Global.mark_event_seen(idx)
 
 	if idx not in _events_visited:

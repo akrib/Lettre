@@ -159,7 +159,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_1a48y")
 }],
 "loop": true,
-"name": &"fall",
+"name": &"dive",
 "speed": 5.0
 }, {
 "frames": [{
@@ -167,7 +167,86 @@ animations = [{
 "texture": SubResource("AtlasTexture_oi0eh")
 }],
 "loop": false,
+"name": &"fall",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnlh5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnlh5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnlh5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnlh5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hs3hd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d0jni")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lfyt0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7x4h0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ynx4q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_11v68")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_otp4b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnlh5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnlh5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnlh5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wdhic")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k61kb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xs6b8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rsegs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b7jbk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3jm3y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2s3sh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1a48y")
+}],
+"loop": true,
 "name": &"fly",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oi0eh")
+}],
+"loop": false,
+"name": &"idle",
 "speed": 5.0
 }]
 
@@ -184,12 +263,8 @@ texture_filter = 1
 position = Vector2(2, 0)
 scale = Vector2(4, 4)
 sprite_frames = SubResource("SpriteFrames_gnkmh")
-animation = &"fly"
+animation = &"fall"
 speed_scale = 1.2
-
-[node name="Sprite2" type="AnimatedSprite2D" parent="."]
-texture_filter = 1
-scale = Vector2(2, 2)
 
 [node name="FlapSound" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("2_flap")

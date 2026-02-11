@@ -14,7 +14,7 @@ export_credentials.cfg
 .mono/
 data_*/
 mono_crash.*.json
-
+data/photos
 
 # Godot 4+ specific ignores
 /android/

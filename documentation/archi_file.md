@@ -1,6 +1,6 @@
 # 🎮 Project Architecture: Lettre pour Bea
 
-> **Generated:** 2026-02-11 07:04
+> **Generated:** 2026-02-11 08:19
 > **Path:** `C:\Applications\godot\Lettre`
 > **Generator:** godot_architecture_generator.py (using gdtoolkit 4.5.0)
 
@@ -12,124 +12,21 @@
 |----------|-------|
 | **Project Name** | Lettre pour Bea |
 | **Engine Features** | 4.5, Mobile |
-| **Main Scene** | `res://scenes/title.tscn` |
+| **Main Scene** | `res://scenes/title_screen.tscn` |
 | **Scripts** | 9 |
-| **Scenes** | 13 |
-| **Resources (.tres)** | 2 |
-| **Input Actions** | `flap` |
+| **Scenes** | 7 |
+| **Resources (.tres)** | 0 |
+| **Input Actions** | `dive` |
 
 ## 2. Directory Structure
 
 ```
 .gitattributes
 .gitignore
-Tanks/
-  food.png
-  tank-tier_0.png
-  tank-tier_0.tscn
-  tank-tier_1.png
-  tank-tier_1.tscn
-  tank-tier_2.png
-  tank-tier_2.tscn
-  tank-tier_3.png
-  tank-tier_3.tscn
-  tier_1-pressed.png
-  tier_1-thumb.png
-  tier_2-pressed.png
-  tier_2-thumb.png
-  tier_3-pressed.png
-  tier_3-thumb.png
-UI/
-  Shop/
-    Assets/
-      atlas_ship.png
-      chair-pressed.png
-      chair-thumb.png
-      chair.png
-      coral.png
-      fruit_basket-pressed.png
-      fruit_basket-thumb.png
-      fruit_basket.png
-      green_plant-pressed.png
-      green_plant-thumb.png
-      green_plant.png
-      highlight.png
-      hog_pet.png
-      item_3-pressed.png
-      item_3-thumb.png
-      item_3.png
-      item_4-pressed.png
-      item_4-thumb.png
-      item_4.png
-      item_5-pressed.png
-      item_5-thumb.png
-      item_5.png
-      item_6-pressed.png
-      item_6-thumb.png
-      item_6.png
-      item_7-pressed.png
-      item_7-thumb.png
-      item_7.png
-      kelp.png
-      lamp-pressed.png
-      lamp-thumb.png
-      lamp.png
-      orca_mug.png
-      phantom_ghost.png
-      samo_pet.png
-      sand_castle-pressed.png
-      sand_castle-thumb.png
-      sand_castle.png
-      sbr_saber.png
-      scallop.png
-      scuba_diver-pressed.png
-      scuba_diver-thumb.png
-      scuba_diver.png
-      shell-pressed.png
-      shell-thumb.png
-      shell.png
-      sol_beach_ball.png
-      table-pressed.png
-      table-thumb.png
-      table.aseprite
-      table.png
-      tv.png
-      tvs-pressed.png
-      tvs-thumb.png
-      umbrella-pressed.png
-      umbrella.png
-  buttons/
-    Button_Blue.png
-    Button_Blue_3Slides.png
-    Button_Blue_3Slides_Pressed.png
-    Button_Blue_9Slides.png
-    Button_Blue_9Slides_Pressed.png
-    Button_Blue_Pressed.png
-    Button_Disable.png
-    Button_Disable_3Slides.png
-    Button_Disable_9Slides.png
-    Button_Hover.png
-    Button_Hover_3Slides.png
-    Button_Hover_9Slides.png
-    Button_Red.png
-    Button_Red_3Slides.png
-    Button_Red_3Slides_Pressed.png
-    Button_Red_9Slides.png
-    Button_Red_9Slides_Pressed.png
-    Button_Red_Pressed.png
-    button.tres
-    exit.png
-  game_over.png
-  load_screen.png
-  m5x7.ttf
-  score.gd
-  score.ogg
-  score.tscn
-  x.png
-export_presets.cfg
-fonts/
-  Adventurer.ttf
-  FreeMono.ttf
+README.md
+data/
+  Zone.sav
+  timeline_data.json
 global.gd
 icon.png
 maps/
@@ -137,45 +34,36 @@ maps/
     SnowMountainsSky.png
     arcticmountains.png
     misty_snowhills_small.png
-  map.gd
-  map_01.tscn
+  parallax_bg.gd
   scroller.gdshader
-  scroller.tres
 music/
   airship_2.ogg
   arctic_breeze.ogg
   chipdisko.ogg
   jewels.ogg
 objects/
-  heart/
-    heart.gd
-    heart.png
-    heart.tscn
-  pipes/
-    blue.png
-    pipe.gd
-    pipe.tscn
-    window_1.png
-    window_2.png
+  player/
+    player.gd
+    player.tscn
   player_fly_tux/
     darthit.wav
     flap.ogg
     plane.png
-    player.gd
-    player.tscn
     tux.png
-  points/
-    100.png
-    points.gd
-    points.tscn
+  popup/
+    event_popup.gd
+    event_popup.tscn
+  timeline/
+    timeline.gd
+    timeline.tscn
 project.godot
 scenes/
-  shop_layer.tscn
-  title.gd
-  title.png
-  title.tscn
-  title_menu.gd
-  title_menu.tscn
+  end_screen.gd
+  end_screen.tscn
+  game.gd
+  game.tscn
+  title_screen.gd
+  title_screen.tscn
 ```
 
 ## 3. Autoloads (Singletons)
@@ -186,156 +74,16 @@ scenes/
 
 ## 5. Scene Map
 
-### `Tanks\tank-tier_0.tscn`
-- **Root:** Node2D (Node2D)
+### `objects\player\player.tscn`
+- **Root:** Player (CharacterBody2D)
 
 ```
-Node2D (Node2D)
-  └─ Tank-tier0 (Sprite2D)
-  └─ TankBorder (StaticBody2D)
-    └─ CollisionPolygon2D (CollisionPolygon2D)
-  └─ Sprite2D (Sprite2D)
-  └─ AnimationPlayer (AnimationPlayer)
+Player (CharacterBody2D)
+  └─ CollisionShape2D (CollisionShape2D)
+  └─ Sprite (AnimatedSprite2D)
+  └─ FlapSound (AudioStreamPlayer2D)
+  └─ DiveSound (AudioStreamPlayer2D)
 ```
-
-**External Resources:**
-- [Texture2D] `res://Tanks/tank-tier_0.png`
-- [Texture2D] `res://Tanks/food.png`
-
-### `Tanks\tank-tier_1.tscn`
-- **Root:** Tank-tier1 (Node2D)
-
-```
-Tank-tier1 (Node2D)
-  └─ Tank-tier1 (Sprite2D)
-  └─ StaticBody2D (StaticBody2D)
-    └─ CollisionPolygon2D (CollisionPolygon2D)
-  └─ Sprite2D (Sprite2D)
-  └─ AnimationPlayer (AnimationPlayer)
-```
-
-**External Resources:**
-- [Texture2D] `res://Tanks/tank-tier_1.png`
-- [Texture2D] `res://Tanks/food.png`
-
-### `Tanks\tank-tier_2.tscn`
-- **Root:** Node2D (Node2D)
-
-```
-Node2D (Node2D)
-  └─ Tank-tier2 (Sprite2D)
-  └─ StaticBody2D (StaticBody2D)
-    └─ CollisionPolygon2D (CollisionPolygon2D)
-  └─ Sprite2D (Sprite2D)
-  └─ AnimationPlayer (AnimationPlayer)
-```
-
-**External Resources:**
-- [Texture2D] `res://Tanks/tank-tier_2.png`
-- [Texture2D] `res://Tanks/food.png`
-
-### `Tanks\tank-tier_3.tscn`
-- **Root:** Node2D (Node2D)
-
-```
-Node2D (Node2D)
-  └─ StaticBody2D (StaticBody2D)
-    └─ CollisionPolygon2D (CollisionPolygon2D)
-  └─ Tank-tier3 (Sprite2D)
-  └─ Sprite2D (Sprite2D)
-  └─ AnimationPlayer (AnimationPlayer)
-```
-
-**External Resources:**
-- [Texture2D] `res://Tanks/tank-tier_3.png`
-- [Texture2D] `res://Tanks/food.png`
-
-### `UI\score.tscn`
-- **Root:** score (Label)
-- **Script:** `res://UI/score.gd`
-
-```
-score (Label)
-  └─ Timer (Timer)
-  └─ sound (AudioStreamPlayer)
-```
-
-**Signal Connections:**
-- `Timer`.timeout → `.`.update_score()
-
-### `maps\map_01.tscn`
-- **Root:** map (Node2D)
-- **Script:** `res://maps/map.gd`
-
-```
-map (Node2D)
-  └─ background (TextureRect)
-  └─ background2 (TextureRect)
-  └─ background3 (TextureRect)
-  └─ score
-  └─ score2
-    └─ Label (Label)
-  └─ player
-  └─ pipe
-    └─ Sprite2D (Sprite2D)
-  └─ Heart
-  └─ PipeTimer (Timer)
-  └─ music (AudioStreamPlayer)
-  └─ AnimationPlayer (AnimationPlayer)
-  └─ MagasinButton (Button)
-  └─ black (ColorRect)
-  └─ Game Over (TextureRect)
-  └─ exit (Button)
-  └─ ShopLayer
-```
-
-**Signal Connections:**
-- `PipeTimer`.timeout → `.`.create_pipe()
-- `MagasinButton`.pressed → `.`._on_magasin_button_pressed()
-- `exit`.pressed → `.`._on_exit_pressed()
-
-### `objects\heart\heart.tscn`
-- **Root:** Heart (Node2D)
-- **Script:** `res://objects/heart/heart.gd`
-
-```
-Heart (Node2D)
-  └─ heart_sprite (AnimatedSprite2D)
-    └─ Area2D (Area2D)
-      └─ CollisionShape2D (CollisionShape2D)
-  └─ points (Area2D)
-    └─ CollisionShape2D (CollisionShape2D)
-  └─ DeathTimer (Timer)
-```
-
-**Signal Connections:**
-- `heart_sprite`.animation_finished → `.`._on_heart_sprite_animation_finished()
-- `heart_sprite/Area2D`.body_entered → `.`.crash()
-
-### `objects\pipes\pipe.tscn`
-- **Root:** pipe (Node2D)
-- **Script:** `res://objects/pipes/pipe.gd`
-
-```
-pipe (Node2D)
-  └─ top (Sprite2D)
-    └─ Area2D (Area2D)
-      └─ CollisionShape2D (CollisionShape2D)
-  └─ bottom (Sprite2D)
-    └─ Area2D (Area2D)
-      └─ CollisionShape2D (CollisionShape2D)
-  └─ points (Area2D)
-    └─ CollisionShape2D (CollisionShape2D)
-  └─ DeathTimer (Timer)
-  └─ windows_2 (Sprite2D)
-  └─ windows_1 (Sprite2D)
-```
-
-**Signal Connections:**
-- `top/Area2D`.body_entered → `.`.crash()
-- `bottom/Area2D`.body_entered → `.`.crash()
-- `points`.body_entered → `.`._on_points_body_entered()
-- `DeathTimer`.timeout → `.`.remove()
 
 ### `objects\player_fly_tux\player.tscn`
 - **Root:** player (CharacterBody2D)
@@ -349,187 +97,168 @@ player (CharacterBody2D)
   └─ death (AudioStreamPlayer2D)
 ```
 
-### `objects\points\points.tscn`
-- **Root:** points (Sprite2D)
-- **Script:** `res://objects/points/points.gd`
+### `objects\popup\event_popup.tscn`
+- **Root:** EventPopup (CanvasLayer)
+- **Script:** `res://objects/popup/event_popup.gd`
 
 ```
-points (Sprite2D)
-```
-
-### `scenes\shop_layer.tscn`
-- **Root:** ShopLayer (CanvasLayer)
-
-```
-ShopLayer (CanvasLayer)
-  └─ Panel (Panel)
-    └─ PetShop (GridContainer)
-      └─ HBoxContainer (HBoxContainer)
-        └─ Label (Label)
-        └─ TextureButton (TextureButton)
-      └─ GridContainer (GridContainer)
-        └─ Item0 (TextureButton)
-        └─ Item1 (TextureButton)
-        └─ Item2 (TextureButton)
-        └─ Item3 (TextureButton)
-        └─ Item4 (TextureButton)
-        └─ Item5 (TextureButton)
-        └─ Item6 (TextureButton)
-        └─ Item7 (TextureButton)
-      └─ HSplitContainer2 (HSplitContainer)
-        └─ Label (Label)
-      └─ GridContainer2 (GridContainer)
-        └─ Item0 (TextureButton)
-        └─ Item1 (TextureButton)
-        └─ Item2 (TextureButton)
-      └─ GridContainer3 (GridContainer)
-        └─ PriceLabel (Label)
-        └─ PriceLabel2 (Label)
-        └─ BuyButton (Button)
-```
-
-### `scenes\title.tscn`
-- **Root:** title (Control)
-- **Script:** `res://scenes/title.gd`
-
-```
-title (Control)
-  └─ Label (Label)
+EventPopup (CanvasLayer)
+  └─ Panel (PanelContainer)
+    └─ MarginContainer (MarginContainer)
+      └─ VBoxContainer (VBoxContainer)
+        └─ DateLabel (Label)
+        └─ PhotosContainer (HBoxContainer)
+        └─ DescriptionLabel (Label)
+        └─ HintLabel (Label)
   └─ AnimationPlayer (AnimationPlayer)
 ```
 
-### `scenes\title_menu.tscn`
-- **Root:** Title Menu (Control)
-- **Script:** `res://scenes/title_menu.gd`
+### `objects\timeline\timeline.tscn`
+- **Root:** Timeline (Node2D)
+- **Script:** `res://objects/timeline/timeline.gd`
 
 ```
-Title Menu (Control)
-  └─ background (Sprite2D)
-  └─ background2 (Sprite2D)
-  └─ Title (Label)
-  └─ message (Label)
-  └─ high_scores (Label)
+Timeline (Node2D)
+  └─ Bar (ColorRect)
+```
+
+### `scenes\end_screen.tscn`
+- **Root:** EndScreen (CanvasLayer)
+- **Script:** `res://scenes/end_screen.gd`
+
+```
+EndScreen (CanvasLayer)
+  └─ Panel (PanelContainer)
+    └─ MarginContainer (MarginContainer)
+      └─ VBoxContainer (VBoxContainer)
+        └─ MessageLabel (Label)
   └─ AnimationPlayer (AnimationPlayer)
-  └─ music (AudioStreamPlayer)
-  └─ player (AnimatedSprite2D)
-  └─ CreditsTimer (Timer)
 ```
 
-**Signal Connections:**
-- `CreditsTimer`.timeout → `.`._on_credits_timer_timeout()
+### `scenes\game.tscn`
+- **Root:** Game (Node2D)
+- **Script:** `res://scenes/game.gd`
+
+```
+Game (Node2D)
+  └─ Background (ParallaxBackground)
+    └─ SkyLayer (ParallaxLayer)
+      └─ Sky (TextureRect)
+    └─ MountainLayer (ParallaxLayer)
+      └─ Mountains (TextureRect)
+  └─ Player
+  └─ Timeline
+  └─ EventPopup
+  └─ EndScreen
+  └─ Music (AudioStreamPlayer)
+```
+
+**External Resources:**
+- [PackedScene] `res://objects/player/player.tscn`
+- [PackedScene] `res://objects/timeline/timeline.tscn`
+- [PackedScene] `res://objects/popup/event_popup.tscn`
+- [PackedScene] `res://scenes/end_screen.tscn`
+
+### `scenes\title_screen.tscn`
+- **Root:** TitleScreen (Control)
+- **Script:** `res://scenes/title_screen.gd`
+
+```
+TitleScreen (Control)
+  └─ Background (TextureRect)
+  └─ TitleLabel (Label)
+  └─ SubtitleLabel (Label)
+  └─ PromptLabel (Label)
+  └─ CopyrightLabel (Label)
+  └─ AnimationPlayer (AnimationPlayer)
+  └─ Music (AudioStreamPlayer)
+```
 
 
 ## 6. Scripts Detail
 
-### `UI\score.gd`
-**extends** `Label`
-
-**@onready Variables:**
-- `player`
-
-**Functions:**
-| Function | Arguments | Returns | Notes |
-|----------|-----------|---------|-------|
-| `_ready` | `()` | `—` | override/private |
-| `update_score` | `()` | `—` |  |
-
 ### `global.gd`
 **extends** `Node`
 
+**Constants:**
+- `TIMELINE_PATH` = "res://data/timeline_data.json"
+- `SAVE_PATH` = "user://save.json"
+
 **Variables:**
-- `heart_speed = 800.0`
-- `pipe_speed = 200.0`
-- `player`
-- `game_time = 0.0`
-- `chamallow = 0`
-- `default_save_data = "chamallow" 0 "current_chamallow" 0 "total_chamallow" 0 "max_dist" 0 "nb_run" 0 "total_dist" 0 "upgrade_list" 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1`
-- `save_data`
-- `save_file = "user://scores.save"`
+- `timeline_title: ""`
+- `timeline_subtitle: ""`
+- `timeline_end_message: ""`
+- `timeline_events: Array[Dictionary]`
+- `save_data: "events_seen"`
+- `player: CharacterBody2D = null`
+- `scroll_speed: 120.0`
+- `is_paused: false`
 
 **Functions:**
 | Function | Arguments | Returns | Notes |
 |----------|-----------|---------|-------|
-| `_ready` | `()` | `—` | override/private |
-| `_process` | `(delta)` | `—` | override/private |
-| `save_score` | `()` | `—` |  |
-| `first_save` | `()` | `—` |  |
-| `load_score` | `()` | `—` |  |
+| `_ready` | `()` | `void` | override/private |
+| `_load_timeline` | `()` | `void` | override/private |
+| `save_game` | `()` | `void` |  |
+| `_load_save` | `()` | `void` | override/private |
+| `mark_event_seen` | `(index: int)` | `void` |  |
 
-### `maps\map.gd`
-**extends** `Node2D`
+### `maps\parallax_bg.gd`
+**extends** `ParallaxBackground`
 
 **Exports:**
-- `hearts = preload "res://objects/heart/heart.tscn"`
-
-**@onready Variables:**
-- `display_size`
-
-**Variables:**
-- `game_over = false`
-- `allow_restart = false`
-- `songs = "res://music/airship_2.ogg" "res://music/arctic_breeze.ogg" "res://music/chipdisko.ogg" "res://music/jewels.ogg"`
+- `auto_scroll: true`
 
 **Functions:**
 | Function | Arguments | Returns | Notes |
 |----------|-----------|---------|-------|
-| `_ready` | `()` | `—` | override/private |
-| `_process` | `(delta)` | `—` | override/private |
-| `player_dead` | `(delta)` | `—` |  |
-| `enable_restart` | `()` | `—` |  |
-| `create_pipe` | `()` | `—` |  |
-| `_input` | `(event)` | `—` | override/private |
-| `_on_exit_pressed` | `()` | `—` | override/private |
-| `_on_store_button_pressed` | `()` | `—` | override/private |
-| `_on_magasin_button_pressed` | `()` | `—` | override/private |
+| `_process` | `(delta: float)` | `void` | override/private |
 
-**Dependencies (preload/load):**
-- `res://objects/heart/heart.tscn`
+### `objects\player\player.gd`
+**extends** `CharacterBody2D`
 
-### `objects\heart\heart.gd`
-**extends** `Node2D`
+**Enums:**
+- `State` { FLYING, LOOPING, DIVING, GROUNDED, RISING }
+
+**Signals:**
+- `dive_landed()`
+- `returned_to_flight()`
+
+**Exports:**
+- `flight_altitude: 180.0`
+- `bob_amplitude: 12.0`
+- `bob_frequency: 2.5`
+- `loop_duration: 0.5`
+- `dive_speed: 500.0`
+- `rise_speed: 200.0`
+- `timeline_y: 560.0`
 
 **@onready Variables:**
-- `player`
-- `points`
+- `sprite: AnimatedSprite2D`
+- `flap_sound: AudioStreamPlayer2D`
+- `dive_sound: AudioStreamPlayer2D`
 
 **Variables:**
-- `top_pos = 300`
-- `active = false`
+- `state: State`
+- `time_alive: 0.0`
+- `loop_timer: 0.0`
+- `loop_start_rotation: 0.0`
+- `_can_dive: true`
 
 **Functions:**
 | Function | Arguments | Returns | Notes |
 |----------|-----------|---------|-------|
-| `_ready` | `()` | `—` | override/private |
-| `_process` | `(delta)` | `—` | override/private |
-| `crash` | `(body)` | `—` |  |
-| `remove` | `()` | `—` |  |
-| `_on_heart_sprite_animation_finished` | `()` | `—` | override/private |
-
-**Dependencies (preload/load):**
-- `res://objects/points/points.tscn`
-
-### `objects\pipes\pipe.gd`
-**extends** `Node2D`
-
-**@onready Variables:**
-- `player`
-- `points`
-
-**Variables:**
-- `top_pos = 0`
-- `active = false`
-
-**Functions:**
-| Function | Arguments | Returns | Notes |
-|----------|-----------|---------|-------|
-| `_ready` | `()` | `—` | override/private |
-| `_process` | `(delta)` | `—` | override/private |
-| `crash` | `(body)` | `—` |  |
-| `remove` | `()` | `—` |  |
-| `_on_points_body_entered` | `(body)` | `—` | override/private |
-
-**Dependencies (preload/load):**
-- `res://objects/points/points.tscn`
+| `_ready` | `()` | `void` | override/private |
+| `_physics_process` | `(delta: float)` | `void` | override/private |
+| `_unhandled_input` | `(event: InputEvent)` | `void` | override/private |
+| `_fly` | `(_delta: float)` | `void` | override/private |
+| `_start_loop` | `()` | `void` | override/private |
+| `_loop` | `(delta: float)` | `void` | override/private |
+| `_dive` | `(_delta: float)` | `void` | override/private |
+| `_land` | `()` | `void` | override/private |
+| `_rise` | `(_delta: float)` | `void` | override/private |
+| `resume_flight` | `()` | `void` |  |
+| `is_flying` | `()` | `—` |  |
 
 ### `objects\player_fly_tux\player.gd`
 **extends** `CharacterBody2D`
@@ -559,54 +288,152 @@ Title Menu (Control)
 | `death` | `()` | `—` |  |
 | `bounce` | `()` | `—` |  |
 
-### `objects\points\points.gd`
-**extends** `Sprite2D`
+### `objects\popup\event_popup.gd`
+**extends** `CanvasLayer`
+
+**Signals:**
+- `popup_closed()`
+
+**@onready Variables:**
+- `panel: PanelContainer`
+- `photos_container: HBoxContainer`
+- `date_label: Label`
+- `description_label: Label`
+- `hint_label: Label`
+- `anim: AnimationPlayer`
 
 **Variables:**
-- `speed = 150`
-- `growth = .1`
-- `life = 0`
+- `_is_open: false`
+- `_allow_close: false`
 
 **Functions:**
 | Function | Arguments | Returns | Notes |
 |----------|-----------|---------|-------|
-| `_ready` | `()` | `—` | override/private |
-| `_process` | `(delta)` | `—` | override/private |
+| `_ready` | `()` | `void` | override/private |
+| `_unhandled_input` | `(event: InputEvent)` | `void` | override/private |
+| `show_event` | `(event_data: Dictionary)` | `void` |  |
+| `close` | `()` | `void` |  |
+| `_clear_photos` | `()` | `void` | override/private |
+| `_add_photo` | `(path: String)` | `void` | override/private |
 
-### `scenes\title.gd`
-**extends** `Control`
+### `objects\timeline\timeline.gd`
+**extends** `Node2D`
+
+**Signals:**
+- `event_zone_entered(event_index: int)`
+
+**Exports:**
+- `bar_height: 6.0`
+- `bar_color: Color`
+- `bar_y: 570.0`
+- `sign_post_height: 55.0`
+- `sign_panel_color: Color`
+- `sign_text_color: Color`
+- `event_text_color: Color`
+- `sign_spacing: 500.0`
+- `start_offset: 600.0`
+
+**@onready Variables:**
+- `display_size: get_viewport`
 
 **Variables:**
-- `next_scene = "res://scenes/title_menu.tscn"`
+- `events: Array[Dictionary]`
+- `sign_nodes: Array[Node2D]`
+- `is_scrolling: true`
+- `_active_event_index: -1`
 
 **Functions:**
 | Function | Arguments | Returns | Notes |
 |----------|-----------|---------|-------|
-| `_ready` | `()` | `—` | override/private |
-| `next` | `()` | `—` |  |
+| `_ready` | `()` | `void` | override/private |
+| `_process` | `(delta: float)` | `void` | override/private |
+| `_build_timeline` | `()` | `void` | override/private |
+| `_create_sign` | `(event: Dictionary, index: int)` | `—` | override/private |
+| `_create_end_sign` | `()` | `—` | override/private |
+| `_update_active_zone` | `()` | `void` | override/private |
+| `_on_trigger_zone_body_entered` | `(body: Node2D, event_index: int)` | `void` | override/private |
+| `get_active_event_index` | `()` | `—` |  |
+| `get_active_event` | `()` | `—` |  |
+| `pause` | `()` | `void` |  |
+| `resume` | `()` | `void` |  |
 
-### `scenes\title_menu.gd`
+### `scenes\end_screen.gd`
+**extends** `CanvasLayer`
+
+**@onready Variables:**
+- `message_label: Label`
+- `anim: AnimationPlayer`
+
+**Functions:**
+| Function | Arguments | Returns | Notes |
+|----------|-----------|---------|-------|
+| `_ready` | `()` | `void` | override/private |
+| `show_message` | `(text: String)` | `void` |  |
+
+### `scenes\game.gd`
+**extends** `Node2D`
+
+**@onready Variables:**
+- `player: CharacterBody2D`
+- `timeline: Node2D`
+- `popup: CanvasLayer`
+- `music: AudioStreamPlayer`
+- `end_screen: CanvasLayer`
+
+**Variables:**
+- `songs: Array[String] = "res://music/airship_2.ogg" "res://music/arctic_breeze.ogg" "res://music/chipdisko.ogg" "res://music/jewels.ogg"`
+- `_current_event_index: -1`
+- `_events_visited: Array[int]`
+- `_game_finished: false`
+
+**Functions:**
+| Function | Arguments | Returns | Notes |
+|----------|-----------|---------|-------|
+| `_ready` | `()` | `void` | override/private |
+| `_setup_music` | `()` | `void` | override/private |
+| `_connect_signals` | `()` | `void` | override/private |
+| `_on_event_zone_entered` | `(event_index: int)` | `void` | override/private |
+| `_on_player_dive_landed` | `()` | `void` | override/private |
+| `_on_popup_closed` | `()` | `void` | override/private |
+| `_resume_after_popup` | `()` | `void` | override/private |
+| `_on_player_returned` | `()` | `void` | override/private |
+| `_show_end_screen` | `()` | `void` | override/private |
+| `_input` | `(event: InputEvent)` | `void` | override/private |
+
+### `scenes\title_screen.gd`
 **extends** `Control`
 
+**@onready Variables:**
+- `title_label: Label`
+- `subtitle_label: Label`
+- `prompt_label: Label`
+- `anim: AnimationPlayer`
+- `music: AudioStreamPlayer`
+
+**Variables:**
+- `_can_start: false`
+
 **Functions:**
 | Function | Arguments | Returns | Notes |
 |----------|-----------|---------|-------|
-| `_ready` | `()` | `—` | override/private |
-| `_input` | `(event)` | `—` | override/private |
-| `start_game` | `()` | `—` |  |
+| `_ready` | `()` | `void` | override/private |
+| `_input` | `(event: InputEvent)` | `void` | override/private |
+| `_start_game` | `()` | `void` | override/private |
+| `_blink_prompt` | `()` | `void` | override/private |
 
 
-## 8. Resources (.tres)
+## 7. Global Signal Map
 
-| File | Type | Script |
-|------|------|--------|
-| `UI\buttons\button.tres` | Theme | — |
-| `maps\scroller.tres` | ShaderMaterial | — |
+| Signal | Defined In | Arguments | Connected In |
+|--------|-----------|-----------|-------------|
+| `dive_landed` | `objects\player\player.gd` | `()` | — |
+| `event_zone_entered` | `objects\timeline\timeline.gd` | `(event_index: int)` | — |
+| `popup_closed` | `objects\popup\event_popup.gd` | `()` | — |
+| `returned_to_flight` | `objects\player\player.gd` | `()` | — |
 
 ## 9. Asset Summary
 
-**Audio** (7 files):
-- `UI\score.ogg`
+**Audio** (6 files):
 - `music\airship_2.ogg`
 - `music\arctic_breeze.ogg`
 - `music\chipdisko.ogg`
@@ -615,55 +442,32 @@ Title Menu (Control)
 - `objects\player_fly_tux\flap.ogg`
 
 **Data** (1 files):
-- `export_presets.cfg`
+- `data\timeline_data.json`
 
-**Fonts** (3 files):
-- `UI\m5x7.ttf`
-- `fonts\Adventurer.ttf`
-- `fonts\FreeMono.ttf`
-
-**Images** (100 files):
-- `Tanks\food.png`
-- `Tanks\tank-tier_0.png`
-- `Tanks\tank-tier_1.png`
-- `Tanks\tank-tier_2.png`
-- `Tanks\tank-tier_3.png`
-- `Tanks\tier_1-pressed.png`
-- `Tanks\tier_1-thumb.png`
-- `Tanks\tier_2-pressed.png`
-- `Tanks\tier_2-thumb.png`
-- `Tanks\tier_3-pressed.png`
-- `Tanks\tier_3-thumb.png`
-- `UI\Shop\Assets\atlas_ship.png`
-- `UI\Shop\Assets\chair-pressed.png`
-- `UI\Shop\Assets\chair-thumb.png`
-- `UI\Shop\Assets\chair.png`
-- `UI\Shop\Assets\coral.png`
-- `UI\Shop\Assets\fruit_basket-pressed.png`
-- `UI\Shop\Assets\fruit_basket-thumb.png`
-- `UI\Shop\Assets\fruit_basket.png`
-- `UI\Shop\Assets\green_plant-pressed.png`
-- ... and 80 more
+**Images** (6 files):
+- `icon.png`
+- `maps\backgrounds\SnowMountainsSky.png`
+- `maps\backgrounds\arcticmountains.png`
+- `maps\backgrounds\misty_snowhills_small.png`
+- `objects\player_fly_tux\plane.png`
+- `objects\player_fly_tux\tux.png`
 
 **Shaders** (1 files):
 - `maps\scroller.gdshader`
 
-**Other** (3 files):
+**Other** (6 files):
 - `.gitattributes`
 - `.gitignore`
-- `UI\Shop\Assets\table.aseprite`
+- `data\Zone.sav`
+- `maps\Zone.sav`
+- `objects\Zone.sav`
+- `scenes\Zone.sav`
 
 ## 10. Dependency Graph
 
 ```
 (script) --preloads/extends--> (dependency)
 
-  maps\map.gd
-    └─→ loads res://objects/heart/heart.tscn
-  objects\heart\heart.gd
-    └─→ loads res://objects/points/points.tscn
-  objects\pipes\pipe.gd
-    └─→ loads res://objects/points/points.tscn
 ```
 
 ---
@@ -673,10 +477,10 @@ Title Menu (Control)
 | Metric | Count |
 |--------|-------|
 | Scripts | 9 |
-| Scenes | 13 |
-| Resources | 2 |
+| Scenes | 7 |
+| Resources | 0 |
 | Registered Classes | 0 |
-| Total Functions | 40 |
-| Total Signals | 0 |
-| Total Exports | 3 |
+| Total Functions | 57 |
+| Total Signals | 4 |
+| Total Exports | 19 |
 | Autoloads | 1 |
