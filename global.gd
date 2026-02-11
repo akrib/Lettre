@@ -1,80 +1,87 @@
 extends Node
+## Autoload singleton — charge les données de la timeline depuis le JSON
+## et gère la sauvegarde de progression.
 
-var heart_speed = 800.0
-var pipe_speed = 200.0
-var player 
-var game_time = 0.0
-#var scores = []
-var chamallow = 0
-var default_save_data = {
-	"chamallow": 0,
-	"current_chamallow": 0,
-	"total_chamallow": 0,
-	"max_dist": 0,
-	"nb_run": 0,
-	"total_dist" : 0, 
-	"upgrade_list": [1,1,1,1,1,
-					1,1,1,1,1,
-					1,1,1,1,1,
-					1,1,1,1,1,
-					1,1,1,1,1,
-					1,1,1,1,1,1]
+const TIMELINE_PATH := "res://data/timeline_data.json"
+const SAVE_PATH := "user://save.json"
+
+# Données de la timeline chargées depuis le JSON
+var timeline_title := ""
+var timeline_subtitle := ""
+var timeline_end_message := ""
+var timeline_events: Array[Dictionary] = []
+
+# Données de sauvegarde
+var save_data := {
+	"events_seen": [],     # indices des événements déjà vus
+	"total_flights": 0,
 }
-var save_data = {}
+
+# Référence globale au joueur (assignée par le player lui-même)
+var player: CharacterBody2D = null
+
+# Vitesse de défilement du monde
+var scroll_speed := 120.0
+var is_paused := false
 
 
-var save_file = "user://scores.save"
-
-func _ready():
-	#Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
-	#save_score(default_save_data)
-	load_score()
+func _ready() -> void:
+	_load_timeline()
+	_load_save()
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	heart_speed += delta
-	if Input.is_action_just_pressed("exit"):
-		get_tree().quit()
+# --- Chargement du JSON ---
 
-func save_score():
-	var cfgFile = FileAccess.open(save_file,FileAccess.WRITE)
-	cfgFile.store_line(JSON.stringify(save_data))
-	cfgFile.close()
-
-func first_save():
-	var cfgFile = FileAccess.open(save_file,FileAccess.WRITE)
-	cfgFile.store_line(JSON.stringify(default_save_data))
-	cfgFile.close()
-
-func load_score():
-	if !FileAccess.file_exists(save_file):
-		first_save()
+func _load_timeline() -> void:
+	if not FileAccess.file_exists(TIMELINE_PATH):
+		push_error("Fichier timeline introuvable : %s" % TIMELINE_PATH)
 		return
-	var cfgFile = FileAccess.open(save_file,FileAccess.READ)
-	var data = JSON.parse_string(cfgFile.get_as_text())
-	save_data = data
-	print("load save data",save_data)
-	#save_data["chamallow"] = int(data["chamallow"])
-	#save_data["max_dist"] = int(data["max_dist"])
-	#save_data["item_01_available"] = data["item_01_available"]
-	#save_data["item_02_available"] = data["item_02_available"]
-	#save_data["item_03_available"] = data["item_03_available"] 
-	#save_data["item_04_available"] = data["item_04_available"] 
-	#save_data["item_05_available"] = data["item_05_available"]
-	#save_data["item_06_available"] = data["item_06_available"]
-	#save_data["item_07_available"] = data["item_07_available"]
-	#save_data["item_08_available"] = data["item_08_available"]
-	#save_data["item_09_available"] = data["item_09_available"]
-	#save_data["item_10_available"] = data["item_10_available"]
-	#save_data["item_11_available"] = data["item_11_available"]
-	#save_data["item_12_available"] = data["item_11_available"]
-	#save_data["item_13_available"] = data["item_13_available"]
-	#save_data["item_14_available"] = data["item_14_available"]
-	#save_data["item_15_available"] = data["item_15_available"]
-	#save_data["item_16_available"] = data["item_16_available"]
-	#save_data["item_17_available"] = data["item_17_available"]
-	#save_data["item_18_available"] = data["item_18_available"]
-	#save_data["item_19_available"] = data["item_19_available"]
-	#save_data["item_20_available"] = data["item_20_available"]
-	#return save_data
+
+	var file := FileAccess.open(TIMELINE_PATH, FileAccess.READ)
+	var json := JSON.new()
+	var error := json.parse(file.get_as_text())
+	file.close()
+
+	if error != OK:
+		push_error("Erreur JSON ligne %d : %s" % [json.get_error_line(), json.get_error_message()])
+		return
+
+	var data: Dictionary = json.data
+	timeline_title = data.get("title", "Lettre à Béa")
+	timeline_subtitle = data.get("subtitle", "")
+	timeline_end_message = data.get("end_message", "")
+
+	timeline_events.clear()
+	for event in data.get("events", []):
+		timeline_events.append(event as Dictionary)
+
+	print("[Global] %d événements chargés." % timeline_events.size())
+
+
+# --- Sauvegarde / Chargement ---
+
+func save_game() -> void:
+	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(save_data, "\t"))
+		file.close()
+
+
+func _load_save() -> void:
+	if not FileAccess.file_exists(SAVE_PATH):
+		return
+
+	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	if not file:
+		return
+
+	var json := JSON.new()
+	if json.parse(file.get_as_text()) == OK and json.data is Dictionary:
+		save_data.merge(json.data, true)
+	file.close()
+
+
+func mark_event_seen(index: int) -> void:
+	if index not in save_data["events_seen"]:
+		save_data["events_seen"].append(index)
+		save_game()

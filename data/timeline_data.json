@@ -1,0 +1,51 @@
+{
+	"title": "Lettre à Béa",
+	"subtitle": "Notre histoire en avions de papier",
+	"end_message": "Et ce n'est que le début de notre histoire...\nJe t'aime ♥",
+	"events": [
+		{
+			"date": "14 Fév 2023",
+			"title": "Le premier avion",
+			"description": "Le jour où tu m'as envoyé ton premier message, un simple bonjour qui a tout changé.",
+			"photos": [
+				"res://data/photos/event_01_a.png"
+			]
+		},
+		{
+			"date": "28 Fév 2023",
+			"title": "Premier rendez-vous",
+			"description": "On s'est enfin rencontrés au petit café du coin. Tu portais ton écharpe bleue.",
+			"photos": [
+				"res://data/photos/event_02_a.png",
+				"res://data/photos/event_02_b.png"
+			]
+		},
+		{
+			"date": "21 Mars 2023",
+			"title": "Notre chanson",
+			"description": "La première fois qu'on a dansé ensemble dans ta cuisine.",
+			"photos": [
+				"res://data/photos/event_03_a.png"
+			]
+		},
+		{
+			"date": "15 Août 2023",
+			"title": "Les vacances",
+			"description": "Une semaine rien qu'à nous, le soleil, la mer, et des étoiles plein les yeux.",
+			"photos": [
+				"res://data/photos/event_04_a.png",
+				"res://data/photos/event_04_b.png",
+				"res://data/photos/event_04_c.png"
+			]
+		},
+		{
+			"date": "14 Fév 2024",
+			"title": "Un an déjà",
+			"description": "365 jours d'amour. 365 avions en papier. Et j'en plierai encore des milliers.",
+			"photos": [
+				"res://data/photos/event_05_a.png",
+				"res://data/photos/event_05_b.png"
+			]
+		}
+	]
+}
