@@ -1,11 +1,12 @@
 extends Node2D
 
 signal event_zone_entered(event_index: int)
+signal timeline_ended                          # NOUVEAU
 
 @export var scroll_speed: float = 80.0
 @export var marker_spacing: float = 700.0
-@export var timeline_y: float = 570.0         # bien plus bas sur l'écran
-@export var bar_height: float = 60.0          # barres bien visibles
+@export var timeline_y: float = 570.0
+@export var bar_height: float = 60.0
 @export var sign_width: float = 120.0
 @export var sign_height: float = 36.0
 @export var post_height: float = 40.0
@@ -13,6 +14,7 @@ signal event_zone_entered(event_index: int)
 var _scrolling := true
 var _markers: Array[Node2D] = []
 var _active_event_index: int = -1
+var _ended := false                            # NOUVEAU
 
 # Couleurs
 var _sign_bg := Color(0.15, 0.22, 0.35, 0.92)
@@ -46,6 +48,7 @@ func _process(delta: float) -> void:
 		marker.position.x -= speed
 
 	_check_active_zone()
+	_check_timeline_end()
 
 
 # ══════════════════════════════════════════════════════════════
@@ -62,14 +65,11 @@ func _build_markers() -> void:
 		add_child(marker)
 		_markers.append(marker)
 
-		# ── Barre de timeline (pleine largeur, pas d'espace) ──
 		_add_timeline_bar(marker, i)
 
-		# ── Panneau gauche (date début) ──
 		var date_start: String = ev.get("date", "")
 		_add_sign_post(marker, 0.0, date_start, true)
 
-		# ── Panneau droit (date fin / début suivant) ──
 		var date_end: String = ""
 		if i + 1 < events.size():
 			date_end = events[i + 1].get("date", "")
@@ -77,21 +77,17 @@ func _build_markers() -> void:
 			date_end = ev.get("date_end", "Aujourd'hui")
 		_add_sign_post(marker, marker_spacing, date_end, false)
 
-		# ── Titre centré ──
 		_add_title(marker, ev.get("title", ""), i)
 
 
-## Barre pleine entre les deux panneaux — AUCUN espace
 func _add_timeline_bar(parent: Node2D, index: int) -> void:
 	var bar := ColorRect.new()
-	# La barre commence à x=0 et va jusqu'à marker_spacing (collée au suivant)
 	bar.position = Vector2(0, timeline_y - bar_height)
 	bar.size = Vector2(marker_spacing, bar_height)
 	bar.color = _bar_colors[index % _bar_colors.size()]
 	bar.name = "Bar"
 	parent.add_child(bar)
 
-	# Ligne de séparation fine à gauche
 	var sep := ColorRect.new()
 	sep.size = Vector2(2, bar_height)
 	sep.position = Vector2(0, timeline_y - bar_height)
@@ -99,19 +95,16 @@ func _add_timeline_bar(parent: Node2D, index: int) -> void:
 	parent.add_child(sep)
 
 
-## Panneau de signalisation avec poteau
 func _add_sign_post(parent: Node2D, x_pos: float, date_text: String, is_left: bool) -> void:
 	var sign_x := x_pos - sign_width * 0.5
 	var sign_bottom := timeline_y - bar_height
 
-	# ── Poteau ──
 	var post := ColorRect.new()
 	post.size = Vector2(3, post_height)
 	post.position = Vector2(x_pos - 1.5, sign_bottom - post_height)
 	post.color = _post_color
 	parent.add_child(post)
 
-	# ── Fond du panneau ──
 	var panel_y := sign_bottom - post_height - sign_height - 2
 	var bg := ColorRect.new()
 	bg.size = Vector2(sign_width, sign_height)
@@ -119,13 +112,12 @@ func _add_sign_post(parent: Node2D, x_pos: float, date_text: String, is_left: bo
 	bg.color = _sign_bg
 	parent.add_child(bg)
 
-	# ── Bordures ──
 	var bw := 2.0
 	for edge in [
-		[Vector2(sign_x, panel_y), Vector2(sign_width, bw)],                          # haut
-		[Vector2(sign_x, panel_y + sign_height - bw), Vector2(sign_width, bw)],       # bas
-		[Vector2(sign_x, panel_y), Vector2(bw, sign_height)],                          # gauche
-		[Vector2(sign_x + sign_width - bw, panel_y), Vector2(bw, sign_height)],       # droite
+		[Vector2(sign_x, panel_y), Vector2(sign_width, bw)],
+		[Vector2(sign_x, panel_y + sign_height - bw), Vector2(sign_width, bw)],
+		[Vector2(sign_x, panel_y), Vector2(bw, sign_height)],
+		[Vector2(sign_x + sign_width - bw, panel_y), Vector2(bw, sign_height)],
 	]:
 		var r := ColorRect.new()
 		r.position = edge[0]
@@ -133,7 +125,6 @@ func _add_sign_post(parent: Node2D, x_pos: float, date_text: String, is_left: bo
 		r.color = _sign_border
 		parent.add_child(r)
 
-	# ── Texte date ──
 	var lbl := Label.new()
 	if is_left:
 		lbl.text = "▸ " + date_text
@@ -150,13 +141,11 @@ func _add_sign_post(parent: Node2D, x_pos: float, date_text: String, is_left: bo
 	parent.add_child(lbl)
 
 
-## Titre centré dans la barre
 func _add_title(parent: Node2D, title_text: String, _index: int) -> void:
 	var lbl := Label.new()
 	lbl.text = title_text
 	lbl.name = "Title"
 
-	# Centré dans la barre
 	var label_w := marker_spacing * 0.7
 	lbl.position = Vector2(
 		marker_spacing * 0.5 - label_w * 0.5,
@@ -198,6 +187,24 @@ func _check_active_zone() -> void:
 		_active_event_index = closest_idx
 		event_zone_entered.emit(_active_event_index)
 		_highlight_active_bar()
+
+
+## Vérifie si l'avion a dépassé la fin du dernier événement
+func _check_timeline_end() -> void:
+	if _ended or _markers.is_empty():
+		return
+
+	var last_marker: Node2D = _markers[_markers.size() - 1]
+	var end_x: float = last_marker.position.x + marker_spacing
+
+	var player_x: float = 300.0
+	if Global.player:
+		player_x = Global.player.position.x
+
+	# L'avion a dépassé la fin de la dernière barre
+	if end_x < player_x:
+		_ended = true
+		timeline_ended.emit()
 
 
 func _highlight_active_bar() -> void:

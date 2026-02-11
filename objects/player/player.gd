@@ -5,13 +5,13 @@ signal returned_to_flight
 
 enum State { FLYING, DIVE_LOOP, DIVING_DOWN, HIDDEN, RISING, RISE_LOOP }
 
-@export var loop_radius: float = 120.0
-@export var loop_speed: float = 3.5
-@export var dive_speed: float = 700.0
-@export var rise_speed: float = 700.0
+@export var loop_radius: float = 100.0       # rayon réduit = boucle plus serrée
+@export var loop_speed: float = 6.0          # bien plus rapide (était 3.5)
+@export var dive_speed: float = 1200.0       # chute plus rapide (était 700)
+@export var rise_speed: float = 1200.0       # remontée plus rapide (était 700)
 @export var bob_amplitude: float = 4.0
-@export var bob_frequency: float = 0.4       # bien plus lent → serein
-@export var bob_x_amplitude: float = 2.0     # léger mouvement horizontal
+@export var bob_frequency: float = 0.4
+@export var bob_x_amplitude: float = 2.0
 @export var bob_x_frequency: float = 0.25
 
 @onready var sprite: AnimatedSprite2D = $Sprite
@@ -50,23 +50,16 @@ func _physics_process(delta: float) -> void:
 			pass
 
 
-# ── Vol normal (balancement doux et lent) ────────────────────
 func _process_flying(delta: float) -> void:
 	_bob_time += delta
-
-	# Mouvement vertical : vague lente
 	var wave_y := sin(_bob_time * bob_frequency * TAU)
-	# Mouvement horizontal : vague encore plus lente, déphasée
 	var wave_x := sin(_bob_time * bob_x_frequency * TAU + 1.2)
-
 	position.y = _flight_y + wave_y * bob_amplitude
 	position.x = _flight_x + wave_x * bob_x_amplitude
-
-	# Légère inclinaison qui suit le mouvement vertical
 	rotation = wave_y * 0.03
 	sprite.play("fly")
 
-# ── Input ────────────────────────────────────────────────────
+
 func _input(event: InputEvent) -> void:
 	if state != State.FLYING:
 		return
@@ -79,7 +72,7 @@ func _input(event: InputEvent) -> void:
 
 
 # ══════════════════════════════════════════════════════════════
-#  PLONGEON  (looping 270° puis chute verticale)
+#  PLONGEON
 # ══════════════════════════════════════════════════════════════
 func start_dive() -> void:
 	state = State.DIVE_LOOP
@@ -112,7 +105,7 @@ func _process_diving_down(delta: float) -> void:
 
 
 # ══════════════════════════════════════════════════════════════
-#  REMONTÉE  (montée verticale puis looping 270°)
+#  REMONTÉE
 # ══════════════════════════════════════════════════════════════
 func resume_flight() -> void:
 	_rise_target = Vector2(_flight_x + loop_radius, _flight_y - loop_radius)
@@ -169,16 +162,12 @@ func _create_trail() -> void:
 	_trail.local_coords = false
 	_trail.emission_shape = CPUParticles2D.EMISSION_SHAPE_POINT
 
-	# Vélocité initiale vers la gauche (sera ajustée dynamiquement)
 	_trail.direction = Vector2(-1, 0)
 	_trail.spread = 15.0
 	_trail.initial_velocity_min = 80.0
 	_trail.initial_velocity_max = 120.0
-
-	# Gravité nulle
 	_trail.gravity = Vector2.ZERO
 
-	# Taille
 	_trail.scale_amount_min = 3.0
 	_trail.scale_amount_max = 5.0
 
@@ -187,13 +176,11 @@ func _create_trail() -> void:
 	scale_curve.add_point(Vector2(1.0, 0.0))
 	_trail.scale_amount_curve = scale_curve
 
-	# Couleur : blanc 50% → transparent
 	var gradient := Gradient.new()
 	gradient.set_color(0, Color(1.0, 1.0, 1.0, 0.5))
 	gradient.set_color(1, Color(1.0, 1.0, 1.0, 0.0))
 	_trail.color_ramp = gradient
 
-	# Texture ronde
 	var tex := GradientTexture2D.new()
 	var circle_grad := Gradient.new()
 	circle_grad.set_color(0, Color.WHITE)
@@ -207,26 +194,21 @@ func _create_trail() -> void:
 	_trail.texture = tex
 
 
-## Ajuste la vélocité des particules selon l'état.
-## En vol, la scène défile → on pousse les particules vers la gauche.
-## En looping/plongeon, l'avion bouge réellement → vélocité réduite.
 func _update_trail_velocity() -> void:
 	match state:
 		State.FLYING:
-			# Compense le scroll de la timeline pour que la traînée
-			# apparaisse derrière l'avion dans le monde
 			var scroll_v: float = Global.scroll_speed * Global.time_scale
 			_trail.initial_velocity_min = scroll_v * 0.6
 			_trail.initial_velocity_max = scroll_v * 0.9
 			_trail.direction = Vector2(-1, 0)
 		State.DIVE_LOOP, State.RISE_LOOP:
-			_trail.initial_velocity_min = 30.0
-			_trail.initial_velocity_max = 60.0
+			_trail.initial_velocity_min = 40.0
+			_trail.initial_velocity_max = 80.0
 		State.DIVING_DOWN:
 			_trail.direction = Vector2(0, -1)
-			_trail.initial_velocity_min = 80.0
-			_trail.initial_velocity_max = 120.0
+			_trail.initial_velocity_min = 120.0
+			_trail.initial_velocity_max = 180.0
 		State.RISING:
 			_trail.direction = Vector2(0, 1)
-			_trail.initial_velocity_min = 80.0
-			_trail.initial_velocity_max = 120.0
+			_trail.initial_velocity_min = 120.0
+			_trail.initial_velocity_max = 180.0

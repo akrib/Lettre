@@ -93,7 +93,6 @@ func _clear_photos() -> void:
 func _add_photo(path: String) -> void:
 	if not ResourceLoader.exists(path):
 		push_warning("[Popup] Photo introuvable : %s" % path)
-		# Placeholder gris
 		var placeholder := ColorRect.new()
 		placeholder.color = Color(0.3, 0.3, 0.3, 0.5)
 		placeholder.custom_minimum_size = Vector2(180, 140)
@@ -106,7 +105,8 @@ func _add_photo(path: String) -> void:
 
 	var tex_rect := TextureRect.new()
 	tex_rect.texture = texture
-	tex_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	tex_rect.custom_minimum_size = Vector2(180, 140)
+	tex_rect.custom_minimum_size = Vector2(220, 180)
+	tex_rect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	photos_container.add_child(tex_rect)
