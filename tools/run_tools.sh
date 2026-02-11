@@ -16,7 +16,8 @@ while true; do
     echo "4) validate_json.py"
     echo "5) Générer repomix.txt"
     echo "6) Générer archi_file.md"
-    echo "7) Quitter"
+    echo "7) gited_files_list.py"
+    echo "8) Quitter"
     echo "--------------------------"
     read -p "Choisissez un numéro: " choice
 
@@ -50,6 +51,9 @@ while true; do
             break
             ;;
         7)
+            python "$TOOLS_DIR/gited_files_list.py"
+            ;;
+        8)
             echo "Au revoir !"
             break
             ;;
