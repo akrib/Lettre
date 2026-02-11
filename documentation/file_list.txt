@@ -1,8 +1,9 @@
 Generating file hash list...
 global.gd | 379f7f6
+maps/map.gd | 91252d9
 maps/parallax_bg.gd | 47bab79
-objects/player/player.gd | 1eb8f8d
-objects/player/player.tscn | 180b839
+objects/player/player.gd | f78f55a
+objects/player/player.tscn | a8cb0bf
 objects/player_fly_tux/player.gd | 121eb79
 objects/player_fly_tux/player.tscn | 1c723ee
 objects/popup/event_popup.gd | c248b84
@@ -12,7 +13,7 @@ objects/timeline/timeline.tscn | 4d125bf
 project.godot | 589203e
 scenes/end_screen.gd | 0a9fadf
 scenes/end_screen.tscn | 9c90ba8
-scenes/game.gd | 110b6d2
+scenes/game.gd | 08e0ec7
 scenes/game.tscn | 460d78c
 scenes/title_screen.gd | 3376325
 scenes/title_screen.tscn | 9b7dac4

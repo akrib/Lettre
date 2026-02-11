@@ -1,6 +1,7 @@
 Documentation status report
 ---------------------------
 📄 global.gd → NOT DOCUMENTED
+📄 maps/map.gd → NOT DOCUMENTED
 📄 maps/parallax_bg.gd → NOT DOCUMENTED
 📄 objects/player/player.gd → NOT DOCUMENTED
 📄 objects/player/player.tscn → NOT DOCUMENTED

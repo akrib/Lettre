@@ -4,28 +4,28 @@
 	"end_message": "Et ce n'est que le début de notre histoire...\nJe t'aime ♥",
 	"events": [
 		{
-			"date": "14 Fév 2023",
+			"date": "17 juin 2023",
 			"title": "Le premier avion",
-			"description": "Le jour où tu m'as envoyé ton premier message, un simple bonjour qui a tout changé.",
+			"description": "Le jour où tu m'as envoyé ton premier message, un simple méssage qui a tout changé.",
 			"photos": [
-				"res://data/photos/event_01_a.png"
+				"res://data/photos/2023_06_17__1.png"
 			]
 		},
 		{
-			"date": "28 Fév 2023",
+			"date": "04 Juillet 2023",
 			"title": "Premier rendez-vous",
-			"description": "On s'est enfin rencontrés au petit café du coin. Tu portais ton écharpe bleue.",
+			"description": "On s'est enfin rencontrés, premier regard a chatelet. Le feeling était la tout de suite. Notre premiere grande roue et notre premiere tour eiffel",
 			"photos": [
-				"res://data/photos/event_02_a.png",
-				"res://data/photos/event_02_b.png"
+				"res://data/photos/2024_07_04__1.png",
+				"res://data/photos/2024_07_04__2.png"
 			]
 		},
 		{
-			"date": "21 Mars 2023",
-			"title": "Notre chanson",
-			"description": "La première fois qu'on a dansé ensemble dans ta cuisine.",
+			"date": "12 Juillet 2023",
+			"title": "Le musée de la Magie",
+			"description": "Premier baiser a porte de Vincennes, premiere balade dans le marais, premier musée ensemble, ",
 			"photos": [
-				"res://data/photos/event_03_a.png"
+				"res://data/photos/2024_07_12__1.png"
 			]
 		},
 		{
