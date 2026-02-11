@@ -243,10 +243,81 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_dnlh5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnlh5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnlh5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnlh5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hs3hd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d0jni")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lfyt0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7x4h0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ynx4q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_11v68")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_otp4b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnlh5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnlh5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnlh5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wdhic")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k61kb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xs6b8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rsegs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b7jbk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3jm3y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2s3sh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1a48y")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_oi0eh")
 }],
 "loop": false,
-"name": &"idle",
+"name": &"idle_1",
 "speed": 5.0
 }]
 
@@ -263,7 +334,7 @@ texture_filter = 1
 position = Vector2(2, 0)
 scale = Vector2(4, 4)
 sprite_frames = SubResource("SpriteFrames_gnkmh")
-animation = &"fall"
+animation = &"idle"
 speed_scale = 1.2
 
 [node name="FlapSound" type="AudioStreamPlayer2D" parent="."]

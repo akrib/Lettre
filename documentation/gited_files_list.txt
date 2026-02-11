@@ -16,6 +16,7 @@ documentation\documentation_state.txt
 documentation\file_list.txt
 documentation\gited_files_list.txt
 documentation\repomix_by_tools.md
+maps\map.gd
 maps\parallax_bg.gd
 maps\scroller.gdshader
 maps\Zone.sav

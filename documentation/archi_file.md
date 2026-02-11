@@ -1,6 +1,6 @@
 # 🎮 Project Architecture: Lettre pour Bea
 
-> **Generated:** 2026-02-11 08:19
+> **Generated:** 2026-02-11 10:37
 > **Path:** `C:\Applications\godot\Lettre`
 > **Generator:** godot_architecture_generator.py (using gdtoolkit 4.5.0)
 
@@ -13,7 +13,7 @@
 | **Project Name** | Lettre pour Bea |
 | **Engine Features** | 4.5, Mobile |
 | **Main Scene** | `res://scenes/title_screen.tscn` |
-| **Scripts** | 9 |
+| **Scripts** | 10 |
 | **Scenes** | 7 |
 | **Resources (.tres)** | 0 |
 | **Input Actions** | `dive` |
@@ -26,6 +26,78 @@
 README.md
 data/
   Zone.sav
+  photos/
+    1702679305337.jpg
+    2023_06_17__1.png
+    2023_07_02__1.jpg
+    2023_07_12__1.jpg
+    2023_07_18__1.jpg
+    2023_08_09__1.jpg
+    2023_08_09__2.jpg
+    2023_08_20__1.jpg
+    2024_07_14__1.png
+    IMG-20230704-WA0033.jpg
+    IMG-20230718-WA0002.jpg
+    IMG-20230811-WA0002.jpg
+    IMG-20231004-WA0003.jpg
+    IMG-20231109-WA0003.jpg
+    IMG_20230810_160621.jpg
+    IMG_20230810_191730.jpg
+    IMG_20230815_212814.jpg
+    IMG_20230905_175457.jpg
+    IMG_20230912_185111.jpg
+    IMG_20230912_185111_1.jpg
+    IMG_20230912_200208.jpg
+    IMG_20230912_201440.jpg
+    IMG_20230912_202251.jpg
+    IMG_20230912_203101.jpg
+    IMG_20240129_184507.jpg
+    IMG_20240512_222214.jpg
+    IMG_20240528_114928.jpg
+    IMG_20240528_144919.jpg
+    IMG_20240529_141442.jpg
+    IMG_20240630_153417.jpg
+    IMG_20240630_161352.jpg
+    IMG_20240714_151225.jpg
+    IMG_20240715_122906.jpg
+    IMG_20240717_085829.jpg
+    IMG_20240717_211433.jpg
+    IMG_20240718_163947.jpg
+    IMG_20240718_165241.jpg
+    IMG_20240719_133805.jpg
+    IMG_20240720_182629.jpg
+    IMG_20240720_215030.jpg
+    IMG_20240720_215033.jpg
+    IMG_20240721_135636.jpg
+    IMG_20240828_183503.jpg
+    IMG_20240828_183611.jpg
+    IMG_20240903_175730.jpg
+    IMG_20240903_183323.jpg
+    IMG_20240924_182420.jpg
+    IMG_20240924_185841.jpg
+    IMG_20241023_184515.jpg
+    IMG_20241023_192750_1.jpg
+    IMG_20241024_120839.jpg
+    IMG_20241024_150107.jpg
+    IMG_20241030_172824.jpg
+    IMG_20241030_181851.jpg
+    IMG_20241031_192128.jpg
+    IMG_20241031_192618.jpg
+    IMG_20241031_214253.jpg
+    IMG_20241102_110314.jpg
+    IMG_20241102_113649.jpg
+    IMG_20241210_184651.jpg
+    IMG_20241210_193915.jpg
+    IMG_20250101_100613.jpg
+    IMG_20250214_122721.jpg
+    IMG_20250214_152317.jpg
+    IMG_20250214_171304.jpg
+    IMG_20250227_151700.jpg
+    IMG_20250227_152530.jpg
+    IMG_20250227_162457.jpg
+    IMG_20250319_153231.jpg
+    IMG_20250319_155949.jpg
+    IMG_20250319_171712.jpg
   timeline_data.json
 global.gd
 icon.png
@@ -34,6 +106,7 @@ maps/
     SnowMountainsSky.png
     arcticmountains.png
     misty_snowhills_small.png
+  map.gd
   parallax_bg.gd
   scroller.gdshader
 music/
@@ -203,6 +276,39 @@ TitleScreen (Control)
 | `_load_save` | `()` | `void` | override/private |
 | `mark_event_seen` | `(index: int)` | `void` |  |
 
+### `maps\map.gd`
+**extends** `Node2D`
+
+**Exports:**
+- `hearts = preload "res://objects/heart/heart.tscn"`
+
+**@onready Variables:**
+- `display_size`
+
+**Variables:**
+- `game_over = false`
+- `allow_restart = false`
+- `game_started = false`
+- `songs = "res://music/airship_2.ogg" "res://music/arctic_breeze.ogg" "res://music/chipdisko.ogg" "res://music/jewels.ogg"`
+
+**Functions:**
+| Function | Arguments | Returns | Notes |
+|----------|-----------|---------|-------|
+| `_ready` | `()` | `—` | override/private |
+| `_on_entry_loop_done` | `()` | `—` | override/private |
+| `_process` | `(delta)` | `—` | override/private |
+| `player_dead` | `(delta)` | `—` |  |
+| `enable_restart` | `()` | `—` |  |
+| `create_pipe` | `()` | `—` |  |
+| `_input` | `(event)` | `—` | override/private |
+| `_on_exit_pressed` | `()` | `—` | override/private |
+| `_on_store_button_pressed` | `()` | `—` | override/private |
+| `_on_magasin_button_pressed` | `()` | `—` | override/private |
+| `_on_shop_close_pressed` | `()` | `—` | override/private |
+
+**Dependencies (preload/load):**
+- `res://objects/heart/heart.tscn`
+
 ### `maps\parallax_bg.gd`
 **extends** `ParallaxBackground`
 
@@ -218,47 +324,49 @@ TitleScreen (Control)
 **extends** `CharacterBody2D`
 
 **Enums:**
-- `State` { FLYING, LOOPING, DIVING, GROUNDED, RISING }
+- `State` { FLYING, DIVE_LOOP, DIVING_DOWN, HIDDEN, RISING, RISE_LOOP }
 
 **Signals:**
 - `dive_landed()`
 - `returned_to_flight()`
 
 **Exports:**
-- `flight_altitude: 180.0`
-- `bob_amplitude: 12.0`
-- `bob_frequency: 2.5`
-- `loop_duration: 0.5`
-- `dive_speed: 500.0`
-- `rise_speed: 200.0`
-- `timeline_y: 560.0`
+- `loop_radius: float = 120.0`
+- `loop_speed: float = 3.5`
+- `dive_speed: float = 700.0`
+- `rise_speed: float = 700.0`
+- `bob_amplitude: float = 6.0`
+- `bob_frequency: float = 2.0`
 
 **@onready Variables:**
 - `sprite: AnimatedSprite2D`
-- `flap_sound: AudioStreamPlayer2D`
-- `dive_sound: AudioStreamPlayer2D`
 
 **Variables:**
-- `state: State`
-- `time_alive: 0.0`
-- `loop_timer: 0.0`
-- `loop_start_rotation: 0.0`
-- `_can_dive: true`
+- `state: State = State.FLYING`
+- `_loop_center: Vector2`
+- `_loop_angle: float`
+- `_loop_swept: float`
+- `_flight_y: float`
+- `_flight_x: float`
+- `_bob_time: float = 0.0`
+- `_rise_target: Vector2`
+- `_trail: CPUParticles2D`
 
 **Functions:**
 | Function | Arguments | Returns | Notes |
 |----------|-----------|---------|-------|
 | `_ready` | `()` | `void` | override/private |
 | `_physics_process` | `(delta: float)` | `void` | override/private |
-| `_unhandled_input` | `(event: InputEvent)` | `void` | override/private |
-| `_fly` | `(_delta: float)` | `void` | override/private |
-| `_start_loop` | `()` | `void` | override/private |
-| `_loop` | `(delta: float)` | `void` | override/private |
-| `_dive` | `(_delta: float)` | `void` | override/private |
-| `_land` | `()` | `void` | override/private |
-| `_rise` | `(_delta: float)` | `void` | override/private |
+| `_process_flying` | `(delta: float)` | `void` | override/private |
+| `_input` | `(event: InputEvent)` | `void` | override/private |
+| `start_dive` | `()` | `void` |  |
+| `_process_dive_loop` | `(delta: float)` | `void` | override/private |
+| `_process_diving_down` | `(delta: float)` | `void` | override/private |
 | `resume_flight` | `()` | `void` |  |
-| `is_flying` | `()` | `—` |  |
+| `_process_rising` | `(delta: float)` | `void` | override/private |
+| `_start_rise_loop` | `()` | `void` | override/private |
+| `_process_rise_loop` | `(delta: float)` | `void` | override/private |
+| `_create_trail` | `()` | `void` | override/private |
 
 ### `objects\player_fly_tux\player.gd`
 **extends** `CharacterBody2D`
@@ -444,13 +552,28 @@ TitleScreen (Control)
 **Data** (1 files):
 - `data\timeline_data.json`
 
-**Images** (6 files):
-- `icon.png`
-- `maps\backgrounds\SnowMountainsSky.png`
-- `maps\backgrounds\arcticmountains.png`
-- `maps\backgrounds\misty_snowhills_small.png`
-- `objects\player_fly_tux\plane.png`
-- `objects\player_fly_tux\tux.png`
+**Images** (77 files):
+- `data\photos\1702679305337.jpg`
+- `data\photos\2023_06_17__1.png`
+- `data\photos\2023_07_02__1.jpg`
+- `data\photos\2023_07_12__1.jpg`
+- `data\photos\2023_07_18__1.jpg`
+- `data\photos\2023_08_09__1.jpg`
+- `data\photos\2023_08_09__2.jpg`
+- `data\photos\2023_08_20__1.jpg`
+- `data\photos\2024_07_14__1.png`
+- `data\photos\IMG-20230704-WA0033.jpg`
+- `data\photos\IMG-20230718-WA0002.jpg`
+- `data\photos\IMG-20230811-WA0002.jpg`
+- `data\photos\IMG-20231004-WA0003.jpg`
+- `data\photos\IMG-20231109-WA0003.jpg`
+- `data\photos\IMG_20230810_160621.jpg`
+- `data\photos\IMG_20230810_191730.jpg`
+- `data\photos\IMG_20230815_212814.jpg`
+- `data\photos\IMG_20230905_175457.jpg`
+- `data\photos\IMG_20230912_185111.jpg`
+- `data\photos\IMG_20230912_185111_1.jpg`
+- ... and 57 more
 
 **Shaders** (1 files):
 - `maps\scroller.gdshader`
@@ -468,6 +591,8 @@ TitleScreen (Control)
 ```
 (script) --preloads/extends--> (dependency)
 
+  maps\map.gd
+    └─→ loads res://objects/heart/heart.tscn
 ```
 
 ---
@@ -476,11 +601,11 @@ TitleScreen (Control)
 
 | Metric | Count |
 |--------|-------|
-| Scripts | 9 |
+| Scripts | 10 |
 | Scenes | 7 |
 | Resources | 0 |
 | Registered Classes | 0 |
-| Total Functions | 57 |
+| Total Functions | 69 |
 | Total Signals | 4 |
 | Total Exports | 19 |
 | Autoloads | 1 |
