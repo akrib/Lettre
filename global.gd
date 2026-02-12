@@ -30,7 +30,13 @@ var player: CharacterBody2D = null
 var is_paused := false
 var scroll_speed := 80.0
 var time_scale := 1.0
+
+# Vus dans ce run
 var _seen_events: Array[int] = []
+
+# Vus dans tous les runs (persisté)
+var _visited_events: Array[int] = []
+var visited_file := "user://visited_events.save"
 
 var timeline_title: String = ""
 var timeline_subtitle: String = ""
@@ -43,6 +49,7 @@ const TIMELINE_JSON_PATH := "res://data/timeline_data.json"
 func _ready() -> void:
 	load_score()
 	_load_timeline()
+	_load_visited()
 
 
 func _process(_delta: float) -> void:
@@ -78,7 +85,7 @@ func _load_timeline() -> void:
 	print("Timeline chargée : ", timeline_events.size(), " événements")
 
 
-# ── Save / Load ──
+# ── Save / Load scores ──
 func save_score() -> void:
 	var file := FileAccess.open(save_file, FileAccess.WRITE)
 	if file:
@@ -105,11 +112,55 @@ func load_score() -> void:
 			save_data[key] = default_save_data[key]
 
 
-# ── Events vus ──
+# ── Events vus (ce run) ──
 func mark_event_seen(idx: int) -> void:
 	if idx not in _seen_events:
 		_seen_events.append(idx)
 
+	# Persiste aussi pour les prochains runs
+	if idx not in _visited_events:
+		_visited_events.append(idx)
+		_save_visited()
+
 
 func is_event_seen(idx: int) -> bool:
 	return idx in _seen_events
+
+
+# ── Events visités (persisté entre les runs) ──
+func is_event_visited(idx: int) -> bool:
+	return idx in _visited_events
+
+
+func _load_visited() -> void:
+	if not FileAccess.file_exists(visited_file):
+		_visited_events = []
+		return
+
+	var file := FileAccess.open(visited_file, FileAccess.READ)
+	if file:
+		var data = file.get_var()
+		file.close()
+		if data is Array:
+			_visited_events = []
+			for v in data:
+				_visited_events.append(int(v))
+		else:
+			_visited_events = []
+	else:
+		_visited_events = []
+
+
+func _save_visited() -> void:
+	var file := FileAccess.open(visited_file, FileAccess.WRITE)
+	if file:
+		file.store_var(_visited_events)
+		file.close()
+
+
+## Pour reset manuellement : supprimer user://visited_events.save
+## ou appeler cette fonction
+func reset_visited() -> void:
+	_visited_events = []
+	_save_visited()
+	print("Événements visités réinitialisés.")

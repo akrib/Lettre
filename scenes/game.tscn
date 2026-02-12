@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scenes/game.gd" id="1_game"]
 [ext_resource type="Texture2D" uid="uid://c8e86pmrwbub4" path="res://maps/backgrounds/SnowMountainsSky.png" id="2_sky"]
@@ -8,6 +8,8 @@
 [ext_resource type="PackedScene" path="res://objects/timeline/timeline.tscn" id="6_timeline"]
 [ext_resource type="PackedScene" path="res://objects/popup/event_popup.tscn" id="7_popup"]
 [ext_resource type="PackedScene" path="res://scenes/end_screen.tscn" id="8_end"]
+[ext_resource type="PackedScene" path="res://objects/wind/wind_effect.tscn" id="9_wind"]
+[ext_resource type="Script" path="res://objects/banner_plane/banner_spawner.gd" id="10_spawner"]
 
 [sub_resource type="Shader" id="Shader_scroll"]
 code = "shader_type canvas_item;
@@ -57,10 +59,15 @@ offset_bottom = 648.0
 texture = ExtResource("3_mountains")
 expand_mode = 2
 
+[node name="WindEffect" parent="." instance=ExtResource("9_wind")]
+
 [node name="Player" parent="." instance=ExtResource("5_player")]
 position = Vector2(250, 180)
 
 [node name="Timeline" parent="." instance=ExtResource("6_timeline")]
+
+[node name="BannerSpawner" type="Node" parent="."]
+script = ExtResource("10_spawner")
 
 [node name="EventPopup" parent="." instance=ExtResource("7_popup")]
 

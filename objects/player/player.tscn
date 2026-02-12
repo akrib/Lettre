@@ -1,9 +1,9 @@
 [gd_scene load_steps=25 format=3 uid="uid://6d4k7f6xbjji"]
 
 [ext_resource type="Script" uid="uid://23pkxcqkiioa" path="res://objects/player/player.gd" id="1_player"]
-[ext_resource type="AudioStream" uid="uid://b7rc3ykc886xe" path="res://objects/player_fly_tux/flap.ogg" id="2_flap"]
-[ext_resource type="Texture2D" uid="uid://c167igeb745kc" path="res://objects/player_fly_tux/plane.png" id="2_jnjyq"]
-[ext_resource type="AudioStream" uid="uid://3u5ncjrcapv4" path="res://objects/player_fly_tux/darthit.wav" id="3_dive"]
+[ext_resource type="AudioStream" uid="uid://0h6snrebgirw" path="res://objects/player/flap.ogg" id="2_flap"]
+[ext_resource type="Texture2D" uid="uid://clndjjefnwgww" path="res://objects/player/plane.png" id="2_jnjyq"]
+[ext_resource type="AudioStream" uid="uid://bix316wkv2d64" path="res://objects/player/darthit.wav" id="3_dive"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
 radius = 12.0
@@ -332,7 +332,7 @@ shape = SubResource("CapsuleShape2D_player")
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
 texture_filter = 1
 position = Vector2(2, 0)
-scale = Vector2(4, 4)
+scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_gnkmh")
 animation = &"idle"
 speed_scale = 1.2

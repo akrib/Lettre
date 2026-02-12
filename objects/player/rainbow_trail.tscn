@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://objects/player/rainbow_trail.gd" id="1_trail"]
+
+[node name="RainbowTrail" type="Node2D"]
+script = ExtResource("1_trail")

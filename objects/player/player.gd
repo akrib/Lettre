@@ -5,10 +5,10 @@ signal returned_to_flight
 
 enum State { FLYING, DIVE_LOOP, DIVING_DOWN, HIDDEN, RISING, RISE_LOOP }
 
-@export var loop_radius: float = 100.0       # rayon réduit = boucle plus serrée
-@export var loop_speed: float = 6.0          # bien plus rapide (était 3.5)
-@export var dive_speed: float = 1200.0       # chute plus rapide (était 700)
-@export var rise_speed: float = 1200.0       # remontée plus rapide (était 700)
+@export var loop_radius: float = 120.0
+@export var loop_speed: float = 3.5
+@export var dive_speed: float = 700.0
+@export var rise_speed: float = 700.0
 @export var bob_amplitude: float = 4.0
 @export var bob_frequency: float = 0.4
 @export var bob_x_amplitude: float = 2.0
@@ -24,17 +24,18 @@ var _flight_y: float
 var _flight_x: float
 var _bob_time: float = 0.0
 var _rise_target: Vector2
-var _trail: CPUParticles2D
+
+# ── Rainbow trail (Line2D) ──
+var _trail_node: Node2D
 
 
 func _ready() -> void:
 	_flight_y = position.y
 	_flight_x = position.x
-	_create_trail()
+	_create_rainbow_trail()
 
 
 func _physics_process(delta: float) -> void:
-	_update_trail_velocity()
 	match state:
 		State.FLYING:
 			_process_flying(delta)
@@ -50,16 +51,21 @@ func _physics_process(delta: float) -> void:
 			pass
 
 
+# ── Vol normal (balancement doux et lent) ────────────────────
 func _process_flying(delta: float) -> void:
 	_bob_time += delta
+
 	var wave_y := sin(_bob_time * bob_frequency * TAU)
 	var wave_x := sin(_bob_time * bob_x_frequency * TAU + 1.2)
+
 	position.y = _flight_y + wave_y * bob_amplitude
 	position.x = _flight_x + wave_x * bob_x_amplitude
+
 	rotation = wave_y * 0.03
 	sprite.play("fly")
 
 
+# ── Input ────────────────────────────────────────────────────
 func _input(event: InputEvent) -> void:
 	if state != State.FLYING:
 		return
@@ -100,7 +106,8 @@ func _process_diving_down(delta: float) -> void:
 	if position.y > get_viewport_rect().size.y + 150:
 		state = State.HIDDEN
 		visible = false
-		_trail.emitting = false
+		if _trail_node:
+			_trail_node.set_emitting(false)
 		dive_landed.emit()
 
 
@@ -112,7 +119,9 @@ func resume_flight() -> void:
 	position = Vector2(_rise_target.x, get_viewport_rect().size.y + 150)
 	rotation = -PI / 2.0
 	visible = true
-	_trail.emitting = true
+	if _trail_node:
+		_trail_node.clear_trail()
+		_trail_node.set_emitting(true)
 	state = State.RISING
 
 
@@ -148,67 +157,12 @@ func _process_rise_loop(delta: float) -> void:
 
 
 # ══════════════════════════════════════════════════════════════
-#  TRAÎNÉE DE PARTICULES
+#  TRAÎNÉE ARC-EN-CIEL (Line2D)
 # ══════════════════════════════════════════════════════════════
-func _create_trail() -> void:
-	_trail = CPUParticles2D.new()
-	_trail.z_index = -1
-	_trail.position = Vector2(-20, 0)
-	add_child(_trail)
-
-	_trail.emitting = true
-	_trail.amount = 40
-	_trail.lifetime = 0.6
-	_trail.local_coords = false
-	_trail.emission_shape = CPUParticles2D.EMISSION_SHAPE_POINT
-
-	_trail.direction = Vector2(-1, 0)
-	_trail.spread = 15.0
-	_trail.initial_velocity_min = 80.0
-	_trail.initial_velocity_max = 120.0
-	_trail.gravity = Vector2.ZERO
-
-	_trail.scale_amount_min = 3.0
-	_trail.scale_amount_max = 5.0
-
-	var scale_curve := Curve.new()
-	scale_curve.add_point(Vector2(0.0, 1.0))
-	scale_curve.add_point(Vector2(1.0, 0.0))
-	_trail.scale_amount_curve = scale_curve
-
-	var gradient := Gradient.new()
-	gradient.set_color(0, Color(1.0, 1.0, 1.0, 0.5))
-	gradient.set_color(1, Color(1.0, 1.0, 1.0, 0.0))
-	_trail.color_ramp = gradient
-
-	var tex := GradientTexture2D.new()
-	var circle_grad := Gradient.new()
-	circle_grad.set_color(0, Color.WHITE)
-	circle_grad.set_color(1, Color.TRANSPARENT)
-	tex.gradient = circle_grad
-	tex.width = 16
-	tex.height = 16
-	tex.fill = GradientTexture2D.FILL_RADIAL
-	tex.fill_from = Vector2(0.5, 0.5)
-	tex.fill_to = Vector2(0.5, 0.0)
-	_trail.texture = tex
-
-
-func _update_trail_velocity() -> void:
-	match state:
-		State.FLYING:
-			var scroll_v: float = Global.scroll_speed * Global.time_scale
-			_trail.initial_velocity_min = scroll_v * 0.6
-			_trail.initial_velocity_max = scroll_v * 0.9
-			_trail.direction = Vector2(-1, 0)
-		State.DIVE_LOOP, State.RISE_LOOP:
-			_trail.initial_velocity_min = 40.0
-			_trail.initial_velocity_max = 80.0
-		State.DIVING_DOWN:
-			_trail.direction = Vector2(0, -1)
-			_trail.initial_velocity_min = 120.0
-			_trail.initial_velocity_max = 180.0
-		State.RISING:
-			_trail.direction = Vector2(0, 1)
-			_trail.initial_velocity_min = 120.0
-			_trail.initial_velocity_max = 180.0
+func _create_rainbow_trail() -> void:
+	var trail_scene := preload("res://objects/player/rainbow_trail.tscn")
+	_trail_node = trail_scene.instantiate()
+	# Le trail est enfant de l'avion, mais ses Line2D sont top_level
+	# donc les points restent en place dans le monde
+	_trail_node.position = Vector2(-20, 0)
+	add_child(_trail_node)

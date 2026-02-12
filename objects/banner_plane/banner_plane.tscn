@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://cmyws36bsugjy"]
+
+[ext_resource type="Script" uid="uid://dxi1cakda3efu" path="res://objects/banner_plane/banner_plane.gd" id="1_banner"]
+
+[node name="BannerPlane" type="Node2D"]
+z_index = 8
+script = ExtResource("1_banner")

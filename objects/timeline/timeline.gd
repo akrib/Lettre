@@ -1,7 +1,6 @@
 extends Node2D
 
 signal event_zone_entered(event_index: int)
-signal timeline_ended                          # NOUVEAU
 
 @export var scroll_speed: float = 80.0
 @export var marker_spacing: float = 700.0
@@ -11,10 +10,22 @@ signal timeline_ended                          # NOUVEAU
 @export var sign_height: float = 36.0
 @export var post_height: float = 40.0
 
+## Combien de marqueurs charger en avance devant l'écran
+@export var load_ahead: int = 3
+
 var _scrolling := true
-var _markers: Array[Node2D] = []
 var _active_event_index: int = -1
-var _ended := false                            # NOUVEAU
+
+# ── Gestion lazy load ──
+var _markers: Array[Node2D] = []
+var _loaded: Array[bool] = []
+var _unloaded: Array[bool] = []
+
+var _screen_width: float = 1152.0
+var _screen_height: float = 648.0
+
+# ── Shader fondu bords pour les vignettes ──
+var _vignette_shader: Shader
 
 # Couleurs
 var _sign_bg := Color(0.15, 0.22, 0.35, 0.92)
@@ -36,7 +47,11 @@ var _title_color := Color(1, 1, 1, 0.85)
 
 func _ready() -> void:
 	Global.scroll_speed = scroll_speed
-	_build_markers()
+	_screen_width = get_viewport_rect().size.x
+	_screen_height = get_viewport_rect().size.y
+	_create_vignette_shader()
+	_create_placeholders()
+	_update_loading()
 
 
 func _process(delta: float) -> void:
@@ -48,37 +63,164 @@ func _process(delta: float) -> void:
 		marker.position.x -= speed
 
 	_check_active_zone()
-	_check_timeline_end()
+	_update_loading()
+
+
+# ══════════════════════════════════════════════════════════════
+#  SHADER FONDU BORDS (vignettes)
+# ══════════════════════════════════════════════════════════════
+
+func _create_vignette_shader() -> void:
+	_vignette_shader = Shader.new()
+	_vignette_shader.code = """shader_type canvas_item;
+uniform float fade_size : hint_range(0.0, 0.5) = 0.15;
+void fragment() {
+	vec4 col = texture(TEXTURE, UV);
+	float fx = smoothstep(0.0, fade_size, UV.x) * smoothstep(0.0, fade_size, 1.0 - UV.x);
+	float fy = smoothstep(0.0, fade_size, UV.y) * smoothstep(0.0, fade_size, 1.0 - UV.y);
+	col.a *= fx * fy;
+	COLOR = col;
+}
+"""
+
+
+# ══════════════════════════════════════════════════════════════
+#  PLACEHOLDERS
+# ══════════════════════════════════════════════════════════════
+
+func _create_placeholders() -> void:
+	var events: Array = Global.timeline_events
+	for i in range(events.size()):
+		var marker := Node2D.new()
+		marker.position = Vector2(400 + i * marker_spacing, 0)
+		marker.name = "Marker_%d" % i
+		add_child(marker)
+		_markers.append(marker)
+		_loaded.append(false)
+		_unloaded.append(false)
+
+
+# ══════════════════════════════════════════════════════════════
+#  SMART LOADING / UNLOADING
+# ══════════════════════════════════════════════════════════════
+
+func _update_loading() -> void:
+	for i in range(_markers.size()):
+		var marker_x: float = _markers[i].position.x
+		var marker_right: float = marker_x + marker_spacing
+
+		# ── UNLOAD : complètement sorti à gauche ──
+		if marker_right < -200.0:
+			if _loaded[i] and not _unloaded[i]:
+				_unload_marker(i)
+			continue
+
+		# ── LOAD : dans la zone visible + load_ahead ──
+		var load_boundary: float = _screen_width + load_ahead * marker_spacing
+		if marker_x < load_boundary:
+			if not _loaded[i] and not _unloaded[i]:
+				_load_marker(i)
+
+
+## Construit tous les visuels d'un marqueur
+func _load_marker(index: int) -> void:
+	var marker := _markers[index]
+	var events: Array = Global.timeline_events
+	var ev: Dictionary = events[index]
+
+	# Barre de fond
+	_add_timeline_bar(marker, index)
+
+	# Vignette souvenir (grande image floutée derrière l'avion)
+	_add_vignette(marker, ev, index, _screen_height)
+
+	# Panneaux de dates
+	var date_start: String = ev.get("date", "")
+	_add_sign_post(marker, 0.0, date_start, true)
+
+	var date_end: String = ""
+	if index + 1 < events.size():
+		date_end = events[index + 1].get("date", "")
+	else:
+		date_end = ev.get("date_end", "Aujourd'hui")
+	_add_sign_post(marker, marker_spacing, date_end, false)
+
+	# Titre
+	_add_title(marker, ev.get("title", ""), index)
+
+	_loaded[index] = true
+
+
+## Libère tous les enfants visuels d'un marqueur
+func _unload_marker(index: int) -> void:
+	var marker := _markers[index]
+	for child in marker.get_children():
+		child.queue_free()
+	_unloaded[index] = true
+
+
+# ══════════════════════════════════════════════════════════════
+#  VIGNETTE SOUVENIR
+#  Première photo de l'événement (__1.jpg / __1.png),
+#  50% de sa taille, 50% alpha, max 300h / 400w,
+#  dans les 2/3 supérieurs, derrière l'avion (z_index -5)
+# ══════════════════════════════════════════════════════════════
+
+func _add_vignette(parent: Node2D, ev: Dictionary, _index: int, viewport_h: float) -> void:
+	var photos: Array = ev.get("photos", [])
+	if photos.is_empty():
+		return
+
+	var photo_path: String = photos[0]
+	if not ResourceLoader.exists(photo_path):
+		return
+
+	var texture := load(photo_path) as Texture2D
+	if not texture:
+		return
+
+	var tex_w: float = texture.get_width()
+	var tex_h: float = texture.get_height()
+
+	# Calcul 1 : contrainte hauteur max 300
+	var scale_by_h: float = minf(300.0 / tex_h, 0.5)
+	var area_h: float = (tex_w * scale_by_h) * (tex_h * scale_by_h)
+
+	# Calcul 2 : contrainte largeur max 400
+	var scale_by_w: float = minf(400.0 / tex_w, 0.5)
+	var area_w: float = (tex_w * scale_by_w) * (tex_h * scale_by_w)
+
+	# Choisir le scale qui donne la plus grande aire affichée
+	var final_scale: float = scale_by_h if area_h >= area_w else scale_by_w
+
+	var sprite := Sprite2D.new()
+	sprite.texture = texture
+	sprite.scale = Vector2(final_scale, final_scale)
+	sprite.modulate = Color(1, 1, 1, 0.5)
+	sprite.z_index = -8
+
+	# Position aléatoire dans les 2/3 supérieurs
+	var min_y: float = viewport_h * 0.10
+	var max_y: float = viewport_h * 0.20
+	var random_y: float = randf_range(min_y, max_y)
+
+	sprite.position = Vector2(
+		marker_spacing * 0.5,
+		random_y + (tex_h * final_scale * 0.5)
+	)
+
+	# Shader fondu sur les bords
+	var mat := ShaderMaterial.new()
+	mat.shader = _vignette_shader
+	mat.set_shader_parameter("fade_size", 0.15)
+	sprite.material = mat
+
+	parent.add_child(sprite)
 
 
 # ══════════════════════════════════════════════════════════════
 #  CONSTRUCTION VISUELLE
 # ══════════════════════════════════════════════════════════════
-
-func _build_markers() -> void:
-	var events: Array = Global.timeline_events
-
-	for i in range(events.size()):
-		var ev: Dictionary = events[i]
-		var marker := Node2D.new()
-		marker.position = Vector2(400 + i * marker_spacing, 0)
-		add_child(marker)
-		_markers.append(marker)
-
-		_add_timeline_bar(marker, i)
-
-		var date_start: String = ev.get("date", "")
-		_add_sign_post(marker, 0.0, date_start, true)
-
-		var date_end: String = ""
-		if i + 1 < events.size():
-			date_end = events[i + 1].get("date", "")
-		else:
-			date_end = ev.get("date_end", "Aujourd'hui")
-		_add_sign_post(marker, marker_spacing, date_end, false)
-
-		_add_title(marker, ev.get("title", ""), i)
-
 
 func _add_timeline_bar(parent: Node2D, index: int) -> void:
 	var bar := ColorRect.new()
@@ -127,9 +269,9 @@ func _add_sign_post(parent: Node2D, x_pos: float, date_text: String, is_left: bo
 
 	var lbl := Label.new()
 	if is_left:
-		lbl.text = "▸ " + date_text
+		lbl.text = "" + date_text
 	else:
-		lbl.text = date_text + " ◂"
+		lbl.text = date_text + ""
 	lbl.position = Vector2(sign_x + 6, panel_y + 2)
 	lbl.size = Vector2(sign_width - 12, sign_height - 4)
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -189,26 +331,10 @@ func _check_active_zone() -> void:
 		_highlight_active_bar()
 
 
-## Vérifie si l'avion a dépassé la fin du dernier événement
-func _check_timeline_end() -> void:
-	if _ended or _markers.is_empty():
-		return
-
-	var last_marker: Node2D = _markers[_markers.size() - 1]
-	var end_x: float = last_marker.position.x + marker_spacing
-
-	var player_x: float = 300.0
-	if Global.player:
-		player_x = Global.player.position.x
-
-	# L'avion a dépassé la fin de la dernière barre
-	if end_x < player_x:
-		_ended = true
-		timeline_ended.emit()
-
-
 func _highlight_active_bar() -> void:
 	for i in range(_markers.size()):
+		if not _loaded[i] or _unloaded[i]:
+			continue
 		var bar: ColorRect = _markers[i].get_node_or_null("Bar")
 		if not bar:
 			continue

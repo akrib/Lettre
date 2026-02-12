@@ -1,59 +1,46 @@
-{
-	"title": "Lettre à Béa",
-	"subtitle": "Notre histoire en avions de papier",
-	"end_message": "Et ce n'est que le début de notre histoire...\nJe t'aime ♥",
-	"events": [
-		{
-			"date": "17 juin 2023",
-			"title": "Le premier avion",
-			"description": "Le jour où tu m'as envoyé ton premier message, un simple méssage qui a tout changé.",
-			"photos": [
-				"res://data/photos/2023_06_17__1.png"
-			]
-		},
-		{
-			"date": "02 Juillet 2023",
-			"title": "Premier échange whatsapp",
-			"description": "qui aurai pu dire que 958 jours plus tard tu on se serai envoyé plus de 65000 message chacun (toi 69278, moi 65347)",
-			"photos": [
-				"res://data/photos/2023_07_02__1.jpg"
-			]
-		},
-		{
-			"date": "04 Juillet 2023",
-			"title": "Premier rendez-vous",
-			"description": "On s'est enfin rencontrés, premier regard a chatelet. Le feeling était la tout de suite. Notre premiere grande roue et notre premiere tour eiffel",
-			"photos": [
-				"res://data/photos/2023_07_04__1.jpg",
-				"res://data/photos/2023_07_04__2.jpg"
-			]
-		},
-		{
-			"date": "12 Juillet 2023",
-			"title": "Le musée de la Magie",
-			"description": "Premier baiser a porte de Vincennes, premiere balade dans le marais, premier musée ensemble, ",
-			"photos": [
-				"res://data/photos/2023_07_12__1.jpg",
-				"res://data/photos/2023_07_12__2.jpg"
-			]
-		},
-		{
-			"date": "18 Juillet 2023",
-			"title": "Ma premiere visite a Compiègne",
-			"description": "Ma premiere nuit dans tes bras, j'avais envie qu'elle ne se termien jamais",
-			"photos": [
-				"res://data/photos/2023_07_18__1.jpg"
-			]
-		},
-		{
-			"date": "09 août 2023",
-			"title": "La tour monparnasse infernale",
-			"description": "Notre premier ascenceur de 50 étage, des moucherons et Spontexia",
-			"photos": [
-				"res://data/photos/2023_08_09__1.jpg",
-				"res://data/photos/2023_08_09__2.jpg"
-			]
-		},
+[
+    {
+        "date": "2 juillet 2023",
+        "title": "",
+        "description": "",
+        "photos": [
+            "res://data/photos/2023_07_02__1.jpg"
+        ]
+    },
+    {
+        "date": "4 juillet 2023",
+        "title": "",
+        "description": "",
+        "photos": [
+            "res://data/photos/2023_07_04__1.jpg"
+        ]
+    },
+    {
+        "date": "12 juillet 2023",
+        "title": "",
+        "description": "",
+        "photos": [
+            "res://data/photos/2023_07_12__1.jpg"
+        ]
+    },
+    {
+        "date": "18 juillet 2023",
+        "title": "",
+        "description": "",
+        "photos": [
+            "res://data/photos/2023_07_18__1.jpg",
+            "res://data/photos/2023_07_18__10.jpg"
+        ]
+    },
+    {
+        "date": "9 août 2023",
+        "title": "",
+        "description": "",
+        "photos": [
+            "res://data/photos/2023_08_09__1.jpg",
+            "res://data/photos/2023_08_09__2.jpg"
+        ]
+    },
     {
         "date": "10 août 2023",
         "title": "",
@@ -79,15 +66,15 @@
             "res://data/photos/2023_08_15__1.jpg"
         ]
     },
-		{
-			"date": "20 août 2023",
-			"title": "Premier appel internationnal depuis l'itale",
-			"description": "Ces dix jours avait été interminable, et chaqune des choses que je croisais me disait 'ha j'aurai voulu le partager avec elle'",
-			"photos": [
-				"res://data/photos/2023_08_20__1.jpg"
-			]
-		},
-   {
+    {
+        "date": "20 août 2023",
+        "title": "",
+        "description": "",
+        "photos": [
+            "res://data/photos/2023_08_20__1.jpg"
+        ]
+    },
+    {
         "date": "5 septembre 2023",
         "title": "",
         "description": "",
@@ -98,19 +85,12 @@
     },
     {
         "date": "12 septembre 2023",
-        "title": "TEST",
+        "title": "",
         "description": "",
         "photos": [
             "res://data/photos/2023_09_12__1.jpg",
             "res://data/photos/2023_09_12__2.jpg",
-            "res://data/photos/2023_09_12__3.jpg"
-        ]
-    },
-    {
-        "date": "12 septembre 2023",
-        "title": "TEST2",
-        "description": "",
-        "photos": [
+            "res://data/photos/2023_09_12__3.jpg",
             "res://data/photos/2023_09_12__4.jpg",
             "res://data/photos/2023_09_12__5.jpg",
             "res://data/photos/2023_09_12__6.jpg",
@@ -895,5 +875,4 @@
             "res://data/photos/2026_02_04__1.jpg"
         ]
     }
-	]
-}
+]
